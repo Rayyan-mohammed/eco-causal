@@ -9,6 +9,11 @@ Live mode (--live, requires GEMINI_API_KEY): runs each scenario's prompt
 through the actual pipeline and compares the three conditions from Section 9.2
 (LLM-only, RAG-grounded, ROOTCAUSE full). Uses the free Gemini API tier by
 default, so this is free to run (subject to Google's free-tier rate limits).
+
+Live mode checkpoints after every scenario to eval/results/live_run.json, so
+a shutdown, lost wifi, or any other interruption never costs more than the
+one scenario in flight — just rerun the same command and it picks up where
+it left off. Pass --fresh to ignore the checkpoint and start over.
 """
 import argparse
 import json
@@ -84,60 +89,98 @@ def print_offline_report(summary: dict) -> None:
         print("\nNo mismatches — checker verdicts match the hand-labeled answer key exactly.")
 
 
-def run_live(scenarios: list[dict]) -> None:
-    from rootcause.agent.checker import check_chain as _check
-    from rootcause.agent.extraction import extract_causal_chain
+LIVE_RESULTS_PATH = RESULTS_DIR / "live_run.json"
+
+
+def _atomic_write_json(path: Path, data) -> None:
+    """Write via a temp file + rename so a mid-write shutdown or crash can
+    never leave a half-written, corrupted results file behind."""
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, default=str)
+    tmp_path.replace(path)
+
+
+def _load_checkpoint(path: Path) -> dict[str, dict]:
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        rows = json.load(f)
+    return {row["scenario_id"]: row for row in rows}
+
+
+def run_live(scenarios: list[dict], fresh: bool = False) -> None:
     from rootcause.agent.pipeline import RootcausePipeline
     from rootcause.agent.recommendation import draft_recommendation
     from rootcause.agent.state import ConversationState
-    from rootcause.agent.tools import correlate, retrieve
+    from rootcause.agent.tools import retrieve
     from rootcause.llm import chat
 
-    pipeline = RootcausePipeline()
-    results = []
+    RESULTS_DIR.mkdir(exist_ok=True)
+    done = {} if fresh else _load_checkpoint(LIVE_RESULTS_PATH)
+    if done:
+        print(f"Resuming: {len(done)}/{len(scenarios)} scenario(s) already completed in {LIVE_RESULTS_PATH}")
 
-    for scenario in scenarios:
+    pipeline = RootcausePipeline()
+    remaining = [s for s in scenarios if s["id"] not in done]
+    failed = []
+
+    for scenario in remaining:
         known_variables = scenario["known_variables"]
         user_text = scenario["scenario_text"]
+        print(f"[{scenario['id']}] running...", flush=True)
 
-        llm_only = chat(
-            [{"role": "user", "content": user_text}],
-            system="You are an environmental advisory assistant. Answer from your own knowledge, no retrieval available.",
-            max_tokens=2048,
-        )
+        try:
+            llm_only = chat(
+                [{"role": "user", "content": user_text}],
+                system="You are an environmental advisory assistant. Answer from your own knowledge, no retrieval available.",
+                max_tokens=2048,
+            )
+            retrieved = retrieve(user_text, n_results=4)
+            rag_only = draft_recommendation(user_text, retrieved, [], known_variables, [])
 
-        retrieved = retrieve(user_text, n_results=4)
-        rag_only = draft_recommendation(user_text, retrieved, [], known_variables, [])
+            state = ConversationState()
+            state.known_variables = dict(known_variables)
+            full_result = pipeline.handle_turn(state, user_text)
+        except KeyboardInterrupt:
+            print(f"\nInterrupted. {len(done)} scenario(s) saved to {LIVE_RESULTS_PATH} — rerun the same command to resume.")
+            return
+        except Exception as e:
+            # A dropped connection, a transient 503, or a machine going to
+            # sleep mid-call all land here: skip this scenario for now
+            # without losing everything already completed, and retry it
+            # automatically the next time this command runs.
+            print(f"[{scenario['id']}] FAILED ({type(e).__name__}: {e}) — will retry on next run")
+            failed.append(scenario["id"])
+            continue
 
-        state = ConversationState()
-        state.known_variables = dict(known_variables)
-        full_result = pipeline.handle_turn(state, user_text)
-
-        results.append({
+        done[scenario["id"]] = {
             "scenario_id": scenario["id"],
             "domain": scenario["domain"],
             "llm_only": llm_only,
             "rag_grounded": rag_only,
             "rootcause_full": full_result,
-        })
+        }
+        # Checkpoint after every scenario, not just at the end, so a shutdown
+        # or lost connection never costs more than the one in-flight scenario.
+        _atomic_write_json(LIVE_RESULTS_PATH, list(done.values()))
 
-    RESULTS_DIR.mkdir(exist_ok=True)
-    out_path = RESULTS_DIR / "live_run.json"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, default=str)
-    print(f"Wrote {len(results)} live scenario results to {out_path}")
+    print(f"\nWrote {len(done)}/{len(scenarios)} live scenario results to {LIVE_RESULTS_PATH}")
+    if failed:
+        print(f"{len(failed)} scenario(s) failed and will be retried automatically on the next run: {failed}")
     print("Manual or LLM-judge scoring against the answer key is the next step per blueprint Section 9.3 (this script does not auto-score free-text LLM-only/RAG-grounded output).")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true", help="Run the full 3-condition live comparison (requires GEMINI_API_KEY, free tier).")
+    parser.add_argument("--fresh", action="store_true", help="With --live, ignore any existing checkpoint and start over instead of resuming.")
     args = parser.parse_args()
 
     scenarios = load_scenarios()
 
     if args.live:
-        run_live(scenarios)
+        run_live(scenarios, fresh=args.fresh)
         return
 
     graph = CausalGraph.from_file(CAUSAL_MAP_PATH)
