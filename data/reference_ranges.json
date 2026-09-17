@@ -1,0 +1,50 @@
+{
+  "description": "Literature-derived reference bands used by the correlation tool to classify user-supplied numeric values before the recommendation generator drafts a response. Bands are illustrative agronomic thresholds drawn from FAO/USDA soil classification conventions, not site-specific calibrations.",
+  "variables": {
+    "soil_organic_carbon": {
+      "unit": "percent",
+      "source": "FAO Global Soil Partnership, Global Soil Organic Carbon Map technical guidance",
+      "bands": [
+        {"max": 0.5, "label": "critically_low", "note": "Very low organic matter; soil biology and structure likely severely constrained."},
+        {"max": 1.0, "label": "low", "note": "Below typical maintenance level for productive cropland."},
+        {"max": 2.0, "label": "moderate", "note": "Adequate but improvable; typical of many cultivated soils."},
+        {"max": 4.0, "label": "good", "note": "Healthy organic matter level supporting active soil biology."},
+        {"max": 999, "label": "high", "note": "High organic matter, often found in undisturbed or long-term organically managed soils."}
+      ]
+    },
+    "rainfall_level": {
+      "unit": "mm_per_year",
+      "source": "Standard aridity classification synthesized from FAO Land and Water assessments",
+      "bands": [
+        {"max": 300, "label": "arid", "note": "Water is the primary limiting factor for most interventions."},
+        {"max": 600, "label": "semi_arid", "note": "Moisture-competing interventions (e.g. water-hungry cover crops) carry real tradeoff risk."},
+        {"max": 1000, "label": "sub_humid", "note": "Moderate water availability; most standard interventions viable."},
+        {"max": 2000, "label": "humid", "note": "Water generally not limiting."},
+        {"max": 999999, "label": "very_humid", "note": "Excess water management (drainage, waterlogging) may become the binding constraint."}
+      ],
+      "semi_arid_threshold_mm": 400
+    },
+    "soil_ph": {
+      "unit": "pH",
+      "source": "USDA/FAO soil pH classification convention",
+      "bands": [
+        {"max": 5.0, "label": "strongly_acidic", "note": "Restricts nutrient availability and many soil organisms, including earthworms."},
+        {"max": 6.0, "label": "acidic", "note": "Below optimal range for most crops."},
+        {"max": 7.5, "label": "near_neutral", "note": "Optimal range for most crops and soil biology."},
+        {"max": 8.5, "label": "alkaline", "note": "May restrict micronutrient availability."},
+        {"max": 14.0, "label": "strongly_alkaline", "note": "Significant nutrient and structural constraints likely."}
+      ]
+    },
+    "soil_salinity": {
+      "unit": "dS_per_m_ECe",
+      "source": "FAO/USDA soil salinity classification",
+      "bands": [
+        {"max": 2.0, "label": "non_saline", "note": "No significant salinity constraint."},
+        {"max": 4.0, "label": "slightly_saline", "note": "Sensitive crops may show reduced yield."},
+        {"max": 8.0, "label": "moderately_saline", "note": "Many crop yields restricted."},
+        {"max": 16.0, "label": "strongly_saline", "note": "Only salt-tolerant crops viable."},
+        {"max": 999, "label": "extremely_saline", "note": "Cropping largely unviable without remediation."}
+      ]
+    }
+  }
+}
