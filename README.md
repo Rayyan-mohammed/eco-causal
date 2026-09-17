@@ -104,7 +104,9 @@ This validates the checker's logic against the causal map itself — it does not
 
 ## Honest scope
 
-The causal map is expert-curated from cited literature (first-draft citations — see `data/sources.md` for the primary-source portals to pull exact page/DOI references from before submission), not statistically discovered from raw data. Coverage is necessarily incomplete at ~32 nodes / ~45 edges, and only 4 edges currently carry a *structured*, numerically-checkable condition (rainfall thresholds for cover cropping and agroforestry, a soil pH threshold for earthworms); several other documented conditions (overgrazing severity, fertilizer application rate, drainage quality) exist as citations in the map but aren't yet wired to a numeric check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
+The causal map is expert-curated from cited literature, not statistically discovered from raw data. Every peer-reviewed and institutional-report citation has been checked against a live web search and carries a verified DOI, publisher URL, or ISBN — see `data/sources.md` § "Citation verification pass" for exactly which citations are DOI-verified papers, which point to an official assessment-report landing page, and the two that link to a general FAO portal rather than a single precisely-dated document (flagged inline in those citations themselves, not hidden).
+
+Coverage is necessarily incomplete at ~32 nodes / ~45 edges, and only 4 edges currently carry a *structured*, numerically-checkable condition (rainfall thresholds for cover cropping and agroforestry, a soil pH threshold for earthworms); several other documented conditions (overgrazing severity, fertilizer application rate, drainage quality) exist as citations in the map but aren't yet wired to a numeric check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
 
 ## References
 
