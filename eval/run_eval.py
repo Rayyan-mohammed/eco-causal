@@ -171,19 +171,88 @@ def run_live(scenarios: list[dict], fresh: bool = False) -> None:
     print("Manual or LLM-judge scoring against the answer key is the next step per blueprint Section 9.3 (this script does not auto-score free-text LLM-only/RAG-grounded output).")
 
 
+def score_live(scenarios: list[dict], graph: CausalGraph) -> dict:
+    """Scores a completed --live run per blueprint Section 9.3: applies the
+    same Causal Consistency Checker post-hoc to the llm_only and rag_grounded
+    free text (which had no checker in their generation loop), and reuses the
+    verdict rootcause_full already produced live. Using one checker to score
+    all three conditions is what makes the comparison apples-to-apples."""
+    from rootcause.agent.extraction import extract_causal_chain
+
+    if not LIVE_RESULTS_PATH.exists():
+        raise SystemExit(f"No live results found at {LIVE_RESULTS_PATH}. Run `python eval/run_eval.py --live` first.")
+
+    scenario_by_id = {s["id"]: s for s in scenarios}
+    with open(LIVE_RESULTS_PATH, encoding="utf-8") as f:
+        live_rows = {row["scenario_id"]: row for row in json.load(f)}
+
+    node_catalog = graph.node_catalog()
+    detail = []
+
+    for scenario_id, row in live_rows.items():
+        known_variables = scenario_by_id[scenario_id]["known_variables"]
+
+        llm_chain = extract_causal_chain(row["llm_only"], node_catalog)
+        llm_verdict = check_chain([(l.cause, l.effect) for l in llm_chain.chain], graph, known_variables)
+
+        rag_chain = extract_causal_chain(row["rag_grounded"]["mechanism"], node_catalog)
+        rag_verdict = check_chain([(l.cause, l.effect) for l in rag_chain.chain], graph, known_variables)
+
+        detail.append({
+            "scenario_id": scenario_id,
+            "domain": row["domain"],
+            "llm_only": llm_verdict.status,
+            "rag_grounded": rag_verdict.status,
+            "rootcause_full": row["rootcause_full"]["checker_status"],
+        })
+
+    summary = {}
+    for condition in ("llm_only", "rag_grounded", "rootcause_full"):
+        statuses = [d[condition] for d in detail]
+        total = len(statuses)
+        accepted = statuses.count("accepted")
+        summary[condition] = {
+            "total": total,
+            "accepted": accepted,
+            "downgraded": statuses.count("downgraded"),
+            "rejected": statuses.count("rejected"),
+            "causal_validity_rate": accepted / total if total else float("nan"),
+        }
+
+    _atomic_write_json(RESULTS_DIR / "live_scored.json", {"summary": summary, "detail": detail})
+    return summary
+
+
+def print_live_score_report(summary: dict) -> None:
+    print("Causal validity rate by condition (same checker applied post-hoc to all three;")
+    print("rootcause_full's verdict is the one it actually produced live, checker in the loop):\n")
+    header = f"{'condition':<16} {'accepted':>9} {'downgraded':>11} {'rejected':>9} {'validity rate':>14}"
+    print(header)
+    print("-" * len(header))
+    for condition, s in summary.items():
+        print(f"{condition:<16} {s['accepted']:>9} {s['downgraded']:>11} {s['rejected']:>9} {s['causal_validity_rate']:>13.1%}")
+    print(f"\nFull per-scenario detail written to {RESULTS_DIR / 'live_scored.json'}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true", help="Run the full 3-condition live comparison (requires GEMINI_API_KEY, free tier).")
     parser.add_argument("--fresh", action="store_true", help="With --live, ignore any existing checkpoint and start over instead of resuming.")
+    parser.add_argument("--score", action="store_true", help="Score a completed --live run's results with the checker (requires GEMINI_API_KEY for chain extraction).")
     args = parser.parse_args()
 
     scenarios = load_scenarios()
+    graph = CausalGraph.from_file(CAUSAL_MAP_PATH)
 
     if args.live:
         run_live(scenarios, fresh=args.fresh)
         return
 
-    graph = CausalGraph.from_file(CAUSAL_MAP_PATH)
+    if args.score:
+        summary = score_live(scenarios, graph)
+        print_live_score_report(summary)
+        return
+
     summary = run_offline(scenarios, graph)
     print_offline_report(summary)
 
