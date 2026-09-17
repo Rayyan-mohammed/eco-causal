@@ -1,0 +1,126 @@
+[
+  {"id": "s1", "domain": "soil_health", "scenario_text": "I farm monoculture wheat on a semi-arid plot with very low soil organic carbon and biodiversity is declining. What should I do?", "known_variables": {"rainfall_level": 280, "soil_organic_carbon": 0.4}, "claims": [
+    {"chain": [["cover_crop_adoption", "soil_organic_carbon"], ["soil_organic_carbon", "soil_microbial_diversity"]], "expected": "downgraded", "reason": "cover_crop_adoption -> soil_organic_carbon requires rainfall >= 400mm; at 280mm (semi-arid) this fails."},
+    {"chain": [["agroforestry_adoption", "soil_moisture_retention"]], "expected": "accepted", "reason": "280mm satisfies the <=1000mm condition for this edge."},
+    {"chain": [["soil_organic_carbon", "soil_microbial_diversity"], ["soil_microbial_diversity", "soil_structure"]], "expected": "accepted", "reason": "Both edges are unconditional."}
+  ]},
+  {"id": "s2", "domain": "soil_health", "scenario_text": "My farm gets 1200mm of rain a year. Would cover cropping help build organic matter, or would it just compete with my crop for water?", "known_variables": {"rainfall_level": 1200}, "claims": [
+    {"chain": [["cover_crop_adoption", "soil_organic_carbon"]], "expected": "accepted", "reason": "1200mm satisfies the >=400mm condition."},
+    {"chain": [["cover_crop_adoption", "soil_moisture_retention"]], "expected": "downgraded", "reason": "The moisture-competition edge only applies below 400mm; at 1200mm the condition fails."}
+  ]},
+  {"id": "s3", "domain": "soil_health", "scenario_text": "I till my maize field conventionally every season in a fairly wet region. Is that hurting my soil biology directly?", "known_variables": {"rainfall_level": 700}, "claims": [
+    {"chain": [["tillage_intensity", "soil_erosion_rate"], ["soil_erosion_rate", "soil_organic_carbon"]], "expected": "accepted", "reason": "Both edges are unconditional and documented."},
+    {"chain": [["tillage_intensity", "soil_microbial_diversity"]], "expected": "rejected", "reason": "No direct edge exists; the relationship is indirect via soil_organic_carbon."}
+  ]},
+  {"id": "s4", "domain": "soil_health", "scenario_text": "Years of heavy nitrogen fertilizer have dropped my soil pH to about 5.0. Are my earthworms in trouble?", "known_variables": {"soil_ph": 5.0}, "claims": [
+    {"chain": [["soil_ph", "earthworm_abundance"]], "expected": "accepted", "reason": "pH 5.0 is below the 5.5 threshold, satisfying the condition."},
+    {"chain": [["earthworm_abundance", "soil_ph"]], "expected": "rejected", "reason": "This reverses the documented direction (soil_ph affects earthworms, not the reverse)."}
+  ]},
+  {"id": "s5", "domain": "soil_health", "scenario_text": "I irrigate heavily in a very dry climate. Could that be affecting my yields through salt buildup?", "known_variables": {"rainfall_level": 150}, "claims": [
+    {"chain": [["irrigation_water_use", "soil_salinity"], ["soil_salinity", "crop_yield"]], "expected": "downgraded", "reason": "irrigation_water_use -> soil_salinity carries a drainage/evaporation condition that is not yet numerically checkable in the MVP causal map, so the chain is correctly downgraded rather than accepted outright even though soil_salinity -> crop_yield alone is unconditional."},
+    {"chain": [["soil_salinity", "soil_organic_carbon"]], "expected": "rejected", "reason": "No documented edge between soil salinity and soil organic carbon."}
+  ]},
+  {"id": "s6", "domain": "soil_health", "scenario_text": "My soil pH tests at a healthy 6.8. Should I still worry about acidification hurting earthworms?", "known_variables": {"soil_ph": 6.8}, "claims": [
+    {"chain": [["soil_ph", "earthworm_abundance"]], "expected": "downgraded", "reason": "pH 6.8 is above the 5.5 threshold, so the condition fails."},
+    {"chain": [["earthworm_abundance", "soil_structure"]], "expected": "accepted", "reason": "Unconditional documented edge."}
+  ]},
+  {"id": "s7", "domain": "land_use_land_cover", "scenario_text": "I grow only wheat, season after season, on the same fields. Is that hurting my pollinators directly?", "known_variables": {"land_use": "monoculture wheat"}, "claims": [
+    {"chain": [["land_use_intensity", "crop_diversity"], ["crop_diversity", "pollinator_abundance"]], "expected": "accepted", "reason": "Both edges unconditional and documented."},
+    {"chain": [["land_use_intensity", "pollinator_abundance"]], "expected": "rejected", "reason": "No direct edge; the effect is indirect through crop_diversity."}
+  ]},
+  {"id": "s8", "domain": "land_use_land_cover", "scenario_text": "I'm converting part of my sub-humid farm to agroforestry. Will that help both moisture and pollinators?", "known_variables": {"rainfall_level": 900}, "claims": [
+    {"chain": [["agroforestry_adoption", "soil_moisture_retention"]], "expected": "accepted", "reason": "900mm satisfies the <=1000mm condition."},
+    {"chain": [["agroforestry_adoption", "pollinator_abundance"]], "expected": "accepted", "reason": "Unconditional documented edge."}
+  ]},
+  {"id": "s9", "domain": "land_use_land_cover", "scenario_text": "My region gets 1800mm of rain a year. Is agroforestry still the right call for moisture retention specifically?", "known_variables": {"rainfall_level": 1800}, "claims": [
+    {"chain": [["agroforestry_adoption", "soil_moisture_retention"]], "expected": "downgraded", "reason": "The moisture-retention benefit is documented for semi-arid to sub-humid climates (<=1000mm); at 1800mm the condition fails."}
+  ]},
+  {"id": "s10", "domain": "land_use_land_cover", "scenario_text": "My rangeland has been heavily grazed. Is that compacting my soil, and is it hurting my pollinators too?", "known_variables": {"land_use": "pasture", "grazing_intensity": "high"}, "claims": [
+    {"chain": [["grazing_intensity", "soil_structure"], ["soil_structure", "soil_moisture_retention"]], "expected": "downgraded", "reason": "grazing_intensity -> soil_structure requires overgrazing (pressure exceeding carrying capacity), a condition not yet numerically checkable in the MVP causal map even though 'high' grazing intensity is stated, so it is correctly downgraded rather than accepted outright."},
+    {"chain": [["grazing_intensity", "pollinator_abundance"]], "expected": "rejected", "reason": "No documented direct edge; overgrazing's documented effects run through soil structure and vegetation cover."}
+  ]},
+  {"id": "s11", "domain": "land_use_land_cover", "scenario_text": "We recently cleared forest for new cropland. What happens to species richness nearby?", "known_variables": {"land_use": "recently cleared cropland"}, "claims": [
+    {"chain": [["deforestation_rate", "habitat_connectivity"], ["habitat_connectivity", "species_richness"]], "expected": "accepted", "reason": "Both edges unconditional and documented."},
+    {"chain": [["deforestation_rate", "pollinator_abundance"]], "expected": "rejected", "reason": "No direct documented edge between deforestation and pollinator abundance."}
+  ]},
+  {"id": "s12", "domain": "land_use_land_cover", "scenario_text": "There's a wetland next to my cropland. Does it help filter my runoff or does my runoff hurt it?", "known_variables": {"land_use": "cropland near wetland"}, "claims": [
+    {"chain": [["wetland_extent", "pollution_runoff"], ["pollution_runoff", "species_richness"]], "expected": "accepted", "reason": "Both edges unconditional and documented."},
+    {"chain": [["pollution_runoff", "wetland_extent"]], "expected": "rejected", "reason": "Reverses the documented direction (wetland extent affects runoff, not the reverse)."}
+  ]},
+  {"id": "s13", "domain": "biodiversity", "scenario_text": "I spray my orchard regularly for pests. Could that be why I'm seeing fewer bees?", "known_variables": {"land_use": "intensive orchard"}, "claims": [
+    {"chain": [["pesticide_use", "pollinator_abundance"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["pollinator_abundance", "pesticide_use"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s14", "domain": "biodiversity", "scenario_text": "I rotate several crops on my smallholding. Does that help keep pest pressure down naturally?", "known_variables": {"land_use": "diversified crop rotation"}, "claims": [
+    {"chain": [["crop_diversity", "natural_pest_predator_abundance"], ["natural_pest_predator_abundance", "pesticide_use"]], "expected": "accepted", "reason": "Both edges unconditional and documented."},
+    {"chain": [["crop_diversity", "soil_ph"]], "expected": "rejected", "reason": "No documented edge between crop diversity and soil pH."}
+  ]},
+  {"id": "s15", "domain": "biodiversity", "scenario_text": "The forest around my land is getting fragmented. Will that reduce the bird species I see?", "known_variables": {"land_use": "fragmented forest margin"}, "claims": [
+    {"chain": [["habitat_connectivity", "bird_diversity"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["bird_diversity", "habitat_connectivity"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s16", "domain": "biodiversity", "scenario_text": "We've had more heatwaves lately. Is that connected to soil salinity somehow?", "known_variables": {}, "claims": [
+    {"chain": [["temperature_extremes", "pollinator_abundance"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["temperature_extremes", "soil_salinity"]], "expected": "rejected", "reason": "No documented edge between temperature extremes and soil salinity."}
+  ]},
+  {"id": "s17", "domain": "biodiversity", "scenario_text": "There's a large wetland on the property boundary. Does it support more species than the cropland around it?", "known_variables": {}, "claims": [
+    {"chain": [["wetland_extent", "species_richness"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["species_richness", "wetland_extent"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s18", "domain": "biodiversity", "scenario_text": "I grow diverse vegetables and rely on natural predators for pest control. Does more crop diversity actually follow from having more predators, or is it the other way around?", "known_variables": {"land_use": "diversified vegetable farm"}, "claims": [
+    {"chain": [["crop_diversity", "natural_pest_predator_abundance"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["natural_pest_predator_abundance", "crop_diversity"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s19", "domain": "climate", "scenario_text": "Droughts are becoming more frequent here. What does that do to soil moisture and eventually my yield?", "known_variables": {}, "claims": [
+    {"chain": [["drought_frequency", "soil_moisture_retention"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["drought_frequency", "crop_yield"]], "expected": "downgraded", "reason": "This edge's condition (no supplemental irrigation or drought-adapted varieties) cannot be verified from the information given."},
+    {"chain": [["crop_yield", "drought_frequency"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s20", "domain": "climate", "scenario_text": "We get decent rainfall here. Does that reliably mean more ground cover, and does ground cover protect against erosion?", "known_variables": {}, "claims": [
+    {"chain": [["rainfall_level", "vegetation_cover"]], "expected": "downgraded", "reason": "This edge's condition (below the local waterlogging threshold) cannot be verified from the information given."},
+    {"chain": [["vegetation_cover", "soil_erosion_rate"]], "expected": "accepted", "reason": "Unconditional documented edge."}
+  ]},
+  {"id": "s21", "domain": "climate", "scenario_text": "There's been large-scale deforestation upwind of us. Could that actually be reducing our regional rainfall?", "known_variables": {}, "claims": [
+    {"chain": [["deforestation_rate", "rainfall_level"]], "expected": "downgraded", "reason": "This edge applies at large regional scale over years to decades, which cannot be verified from the information given."},
+    {"chain": [["deforestation_rate", "soil_erosion_rate"]], "expected": "accepted", "reason": "Unconditional documented edge."}
+  ]},
+  {"id": "s22", "domain": "climate", "scenario_text": "Temperatures have been spiking during flowering. Will that hurt my yield this season?", "known_variables": {}, "claims": [
+    {"chain": [["temperature_extremes", "crop_yield"]], "expected": "downgraded", "reason": "This edge's crop-specific thermal threshold condition cannot be verified from the information given."},
+    {"chain": [["crop_yield", "temperature_extremes"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s23", "domain": "climate", "scenario_text": "My land is degraded from years of overuse in a semi-arid area. Will that hurt my pollinators directly, or just my yield?", "known_variables": {"rainfall_level": 350}, "claims": [
+    {"chain": [["land_degradation", "crop_yield"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["land_degradation", "pollinator_abundance"]], "expected": "rejected", "reason": "No documented direct edge between land degradation and pollinator abundance."}
+  ]},
+  {"id": "s24", "domain": "climate", "scenario_text": "My region gets about 320mm of rain and my soil organic carbon is low. Would cover crops help my pollinators through the soil, or should I plant trees instead?", "known_variables": {"rainfall_level": 320, "soil_organic_carbon": 0.6}, "claims": [
+    {"chain": [["cover_crop_adoption", "soil_organic_carbon"], ["soil_organic_carbon", "soil_microbial_diversity"], ["soil_microbial_diversity", "pollinator_abundance"]], "expected": "downgraded", "reason": "The first edge's rainfall >=400mm condition fails at 320mm."},
+    {"chain": [["agroforestry_adoption", "pollinator_abundance"]], "expected": "accepted", "reason": "Unconditional documented edge, and agroforestry is the moisture-appropriate alternative at this rainfall level."}
+  ]},
+  {"id": "s25", "domain": "human_impact", "scenario_text": "I apply a lot of synthetic fertilizer. Is that adding nitrogen for my crop, and is any of it running off into the nearby stream?", "known_variables": {}, "claims": [
+    {"chain": [["synthetic_fertilizer_use", "nitrogen_availability"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["synthetic_fertilizer_use", "pollution_runoff"]], "expected": "downgraded", "reason": "This edge's condition (application exceeding crop uptake, or heavy rain after application) cannot be verified from the information given."},
+    {"chain": [["pollution_runoff", "synthetic_fertilizer_use"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s26", "domain": "human_impact", "scenario_text": "More nitrogen should mean more yield, right? And does it help my pollinators too?", "known_variables": {}, "claims": [
+    {"chain": [["nitrogen_availability", "crop_yield"]], "expected": "downgraded", "reason": "This edge's optimal-rate condition cannot be verified from the information given."},
+    {"chain": [["nitrogen_availability", "pollinator_abundance"]], "expected": "rejected", "reason": "No documented edge between nitrogen availability and pollinator abundance."}
+  ]},
+  {"id": "s27", "domain": "human_impact", "scenario_text": "Fertilizer runoff from farms upstream feeds into a lake. Is that hurting species there?", "known_variables": {}, "claims": [
+    {"chain": [["pollution_runoff", "species_richness"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["species_richness", "pollution_runoff"]], "expected": "rejected", "reason": "Reverses the documented direction."}
+  ]},
+  {"id": "s28", "domain": "human_impact", "scenario_text": "My land is degraded overall from years of monoculture. Does that lower species richness directly, and does more crop diversity reduce that degradation?", "known_variables": {}, "claims": [
+    {"chain": [["land_degradation", "species_richness"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["crop_diversity", "land_degradation"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["land_degradation", "soil_ph"]], "expected": "rejected", "reason": "No documented direct edge between land degradation and soil pH."}
+  ]},
+  {"id": "s29", "domain": "human_impact", "scenario_text": "My natural predators seem to be keeping pests down, so I've cut back on spraying. Does that directly raise my crop yield?", "known_variables": {}, "claims": [
+    {"chain": [["natural_pest_predator_abundance", "pesticide_use"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["pesticide_use", "crop_yield"]], "expected": "rejected", "reason": "No documented direct edge between pesticide use and crop yield in the causal map."}
+  ]},
+  {"id": "s30", "domain": "human_impact", "scenario_text": "I irrigate heavily in a very dry climate with poor drainage. Is the salt buildup affecting my soil biology?", "known_variables": {"rainfall_level": 180}, "claims": [
+    {"chain": [["irrigation_water_use", "soil_salinity"]], "expected": "downgraded", "reason": "This edge's drainage/evaporation condition is not yet numerically checkable in the MVP causal map, so it is correctly downgraded rather than accepted outright."},
+    {"chain": [["soil_salinity", "soil_microbial_diversity"]], "expected": "accepted", "reason": "Unconditional documented edge."},
+    {"chain": [["soil_microbial_diversity", "irrigation_water_use"]], "expected": "rejected", "reason": "No such direct edge exists in either direction."}
+  ]}
+]
