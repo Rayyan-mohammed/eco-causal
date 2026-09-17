@@ -15,7 +15,7 @@ CHROMA_DIR = ROOT_DIR / "chroma_db"
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 MODEL = os.environ.get("ROOTCAUSE_MODEL", "claude-opus-5")
 
-REQUIRED_VARIABLES = ["soil_organic_carbon", "rainfall", "land_use"]
+REQUIRED_VARIABLES = ["soil_organic_carbon", "rainfall_level", "land_use"]
 
 DOMAINS = [
     "soil_health",
