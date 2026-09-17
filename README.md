@@ -47,7 +47,8 @@ rootcause/
     recommendation.py       drafts the recommendation from retrieved context + correlations
     checker.py              the Causal Consistency Checker itself
     pipeline.py             wires the stages together, with one regeneration retry on rejection
-  output/formatter.py       assembles the final response: recommendation, confidence, checker status, citations
+  output/formatter.py       assembles the final response: action, mechanism, impacted metrics, time horizon,
+                             confidence, checker status, citations — as separate structured fields
   llm.py                    thin Gemini API wrapper (chat + structured parse), free tier by default
   config.py                 paths, model id, required-variable list
 
