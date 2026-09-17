@@ -41,4 +41,4 @@ def draft_recommendation(
     if revision_note:
         prompt += f"\n\nYour previous draft was rejected by the causal consistency checker: {revision_note}\nRevise the recommendation to avoid that invalid step, using only relationships supported by the retrieved excerpts."
     messages = history + [{"role": "user", "content": prompt}]
-    return chat(messages, system=RECOMMENDATION_SYSTEM, max_tokens=1200)
+    return chat(messages, system=RECOMMENDATION_SYSTEM, max_tokens=4096)

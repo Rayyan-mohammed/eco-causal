@@ -103,7 +103,7 @@ def run_live(scenarios: list[dict]) -> None:
         llm_only = chat(
             [{"role": "user", "content": user_text}],
             system="You are an environmental advisory assistant. Answer from your own knowledge, no retrieval available.",
-            max_tokens=600,
+            max_tokens=2048,
         )
 
         retrieved = retrieve(user_text, n_results=4)

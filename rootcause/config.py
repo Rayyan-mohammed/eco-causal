@@ -12,8 +12,27 @@ CAUSAL_MAP_PATH = DATA_DIR / "causal_map.json"
 REFERENCE_RANGES_PATH = DATA_DIR / "reference_ranges.json"
 CHROMA_DIR = ROOT_DIR / "chroma_db"
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-MODEL = os.environ.get("ROOTCAUSE_MODEL", "gemini-2.5-flash")
+def _load_gemini_api_keys() -> list[str]:
+    """Collects every Gemini key in .env: a plain GEMINI_API_KEY plus any
+    numbered GEMINI_API_KEY_1, GEMINI_API_KEY_2, ... (stops at the first gap),
+    so multiple free-tier accounts can be rotated for higher effective throughput."""
+    keys = []
+    single = os.environ.get("GEMINI_API_KEY")
+    if single:
+        keys.append(single)
+    i = 1
+    while True:
+        key = os.environ.get(f"GEMINI_API_KEY_{i}")
+        if not key:
+            break
+        keys.append(key)
+        i += 1
+    return keys
+
+
+GEMINI_API_KEYS = _load_gemini_api_keys()
+GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else None
+MODEL = os.environ.get("ROOTCAUSE_MODEL", "gemini-3.1-flash-lite")
 
 REQUIRED_VARIABLES = ["soil_organic_carbon", "rainfall_level", "land_use"]
 

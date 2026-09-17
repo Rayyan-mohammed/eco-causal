@@ -74,7 +74,9 @@ pip install -r requirements.txt
 cp .env.example .env          # then fill in GEMINI_API_KEY
 ```
 
-Get a free `GEMINI_API_KEY` at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — just a Google account, no card, no billing setup. The default model (`gemini-2.5-flash`, set in `.env.example`) runs entirely on Google's free tier.
+Get a free `GEMINI_API_KEY` at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — just a Google account, no card, no billing setup. The default model (`gemini-3.1-flash-lite`, set in `.env.example`) runs entirely on Google's free tier. (`gemini-2.5-flash` and `gemini-2.0-flash` have since been retired for new API users — Google's own 404 error names the current replacement generation; `gemini-3.1-flash-lite` was chosen over the flagship `gemini-3.6-flash` after live testing found the latter frequently 503s under free-tier demand.)
+
+**Multiple free-tier accounts:** add `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, ... to `.env` (numbered sequentially, no gaps) and `rootcause/llm.py` round-robins across all of them on every call, automatically falling back to the next key within the same call on a rate limit (429) or transient server overload (500/503). This multiplies effective free-tier throughput linearly with the number of accounts.
 
 ## Running it
 
