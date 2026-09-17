@@ -66,15 +66,23 @@ with st.sidebar:
         st.session_state.history = []
         st.rerun()
 
+def render_meta(meta: dict) -> None:
+    if meta.get("impacted_metrics"):
+        st.markdown("**Impacted metrics:** " + ", ".join(meta["impacted_metrics"]))
+    if meta.get("time_horizon"):
+        st.markdown(f"**Time horizon:** {meta['time_horizon']}")
+    st.caption(f"{BADGES.get(meta['checker_status'], '')} Checker: {meta['checker_status']} · confidence: {meta['confidence']}")
+    if meta["citations"]:
+        with st.expander("Sources"):
+            for c in meta["citations"]:
+                st.markdown(f"- {c}")
+
+
 for role, text, meta in st.session_state.history:
     with st.chat_message(role):
         st.markdown(text)
         if meta:
-            st.caption(f"{BADGES.get(meta['checker_status'], '')} Checker: {meta['checker_status']} · confidence: {meta['confidence']}")
-            if meta["citations"]:
-                with st.expander("Sources"):
-                    for c in meta["citations"]:
-                        st.markdown(f"- {c}")
+            render_meta(meta)
 
 user_text = st.chat_input("Describe your site and what you're concerned about...")
 if user_text:
@@ -91,14 +99,12 @@ if user_text:
         meta = None
         if result["type"] == "recommendation":
             meta = {
+                "impacted_metrics": result["impacted_metrics"],
+                "time_horizon": result["time_horizon"],
                 "checker_status": result["checker_status"],
                 "confidence": result["confidence"],
                 "citations": result["citations"],
             }
-            st.caption(f"{BADGES[meta['checker_status']]} Checker: {meta['checker_status']} · confidence: {meta['confidence']}")
-            if meta["citations"]:
-                with st.expander("Sources"):
-                    for c in meta["citations"]:
-                        st.markdown(f"- {c}")
+            render_meta(meta)
 
     st.session_state.history.append(("assistant", result["text"], meta))

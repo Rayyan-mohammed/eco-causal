@@ -137,7 +137,7 @@ def run_live(scenarios: list[dict], fresh: bool = False) -> None:
                 max_tokens=2048,
             )
             retrieved = retrieve(user_text, n_results=4)
-            rag_only = draft_recommendation(user_text, retrieved, [], known_variables, [])
+            rag_only = draft_recommendation(user_text, retrieved, [], known_variables, []).model_dump()
 
             state = ConversationState()
             state.known_variables = dict(known_variables)

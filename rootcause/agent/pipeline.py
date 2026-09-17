@@ -45,7 +45,7 @@ class RootcausePipeline:
 
     def _draft_and_check(self, user_text, retrieved, correlations, known_variables, history):
         draft = draft_recommendation(user_text, retrieved, correlations, known_variables, history)
-        chain = extract_causal_chain(draft, self.graph.node_catalog())
+        chain = extract_causal_chain(draft.mechanism, self.graph.node_catalog())
         verdict = check_chain([(link.cause, link.effect) for link in chain.chain], self.graph, known_variables)
 
         attempts = 0
@@ -53,7 +53,7 @@ class RootcausePipeline:
             draft = draft_recommendation(
                 user_text, retrieved, correlations, known_variables, history, revision_note=verdict.explanation
             )
-            chain = extract_causal_chain(draft, self.graph.node_catalog())
+            chain = extract_causal_chain(draft.mechanism, self.graph.node_catalog())
             verdict = check_chain([(link.cause, link.effect) for link in chain.chain], self.graph, known_variables)
             attempts += 1
 

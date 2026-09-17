@@ -62,18 +62,29 @@ def chat(messages: list[dict], system: str | None = None, max_tokens: int = 4096
     return _call_with_rotation(_call)
 
 
-def parse_structured(messages: list[dict], output_model, system: str | None = None, max_tokens: int = 2000):
-    # Structured extraction is a mechanical task, not one that benefits from
-    # reasoning, so thinking is disabled: faster, cheaper, and avoids the
-    # thinking-tokens-starve-the-JSON failure mode entirely.
+def parse_structured(
+    messages: list[dict],
+    output_model,
+    system: str | None = None,
+    max_tokens: int = 2000,
+    disable_thinking: bool = True,
+):
+    # Mechanical extraction (parsing free text into fields, or a recommendation
+    # into a causal chain) doesn't benefit from reasoning, so thinking is
+    # disabled by default: faster, cheaper, and avoids the thinking-tokens-
+    # starve-the-JSON failure mode entirely. The recommendation draft itself is
+    # the one structured call where reasoning quality matters, so it opts back
+    # in with disable_thinking=False.
     contents = _to_gemini_contents(messages)
-    config = types.GenerateContentConfig(
+    config_kwargs = dict(
         system_instruction=system,
         max_output_tokens=max_tokens,
-        thinking_config=types.ThinkingConfig(thinking_budget=0),
         response_mime_type="application/json",
         response_json_schema=output_model.model_json_schema(),
     )
+    if disable_thinking:
+        config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
+    config = types.GenerateContentConfig(**config_kwargs)
 
     def _call(client: genai.Client):
         response = client.models.generate_content(model=MODEL, contents=contents, config=config)
