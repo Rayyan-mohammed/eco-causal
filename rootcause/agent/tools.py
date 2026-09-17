@@ -11,6 +11,11 @@ def get_knowledge_store() -> KnowledgeStore:
     global _store
     if _store is None:
         _store = KnowledgeStore()
+        if _store.count() == 0:
+            # First run against a fresh chroma_db (e.g. a new cloud deploy,
+            # where chroma_db/ is gitignored and doesn't exist yet) — build
+            # the index automatically instead of requiring a manual step.
+            _store.build_index()
     return _store
 
 

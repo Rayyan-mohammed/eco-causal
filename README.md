@@ -93,7 +93,20 @@ streamlit run app/streamlit_app.py
 
 # the full live 3-condition evaluation (needs GEMINI_API_KEY, free tier)
 python eval/run_eval.py --live
+
+# score a completed --live run: applies the same checker to all 3 conditions
+python eval/run_eval.py --score
 ```
+
+## Deploying a live URL (Streamlit Community Cloud)
+
+The app is deploy-ready as-is: the knowledge base auto-builds on first run if missing (`rootcause/agent/tools.py`), and `app/streamlit_app.py` bridges Streamlit Cloud's Secrets into the same environment variables `.env` uses locally, so no code changes are needed between local and hosted.
+
+1. Push this repo to GitHub (already done if you're reading this from the repo).
+2. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub — this step needs your own account, it can't be done on your behalf.
+3. Click **New app**, pick this repo, branch `main`, main file path `app/streamlit_app.py`.
+4. Before deploying, open **Advanced settings -> Secrets** and paste in the contents of `.streamlit/secrets.toml.example` with your real key(s) filled in (one `GEMINI_API_KEY_N` per free-tier account you want rotated, or just a single `GEMINI_API_KEY`).
+5. Deploy. First load will be slower than usual (one-time onnx embedding model download + knowledge index build), then the URL is live and shareable.
 
 ## Current status against the blueprint's evaluation metrics
 

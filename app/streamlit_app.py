@@ -1,8 +1,19 @@
 import json
+import os
 import sys
 from pathlib import Path
 
 import streamlit as st
+
+# On Streamlit Community Cloud, keys are set via the app's Secrets UI
+# (st.secrets) rather than a .env file. Bridge them into the environment
+# before any rootcause module is imported, since config.py reads os.environ
+# at import time. Locally, with no secrets.toml configured, this is a no-op.
+try:
+    for _key, _value in st.secrets.items():
+        os.environ.setdefault(_key, str(_value))
+except Exception:
+    pass
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
