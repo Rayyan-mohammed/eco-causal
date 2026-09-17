@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from rootcause.agent.pipeline import RootcausePipeline
 from rootcause.agent.state import ConversationState
-from rootcause.config import ANTHROPIC_API_KEY
+from rootcause.config import GEMINI_API_KEY
 
 st.set_page_config(page_title="ROOTCAUSE", page_icon="🌱", layout="centered")
 
@@ -31,8 +31,8 @@ st.caption(
     "source-backed causal map before it lets a recommendation reach you."
 )
 
-if not ANTHROPIC_API_KEY:
-    st.warning("ANTHROPIC_API_KEY is not set. Add it to a .env file (see .env.example) before chatting.")
+if not GEMINI_API_KEY:
+    st.warning("GEMINI_API_KEY is not set. Add it to a .env file (see .env.example) before chatting.")
 
 with st.sidebar:
     st.header("Known site variables")

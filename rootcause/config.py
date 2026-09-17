@@ -12,8 +12,8 @@ CAUSAL_MAP_PATH = DATA_DIR / "causal_map.json"
 REFERENCE_RANGES_PATH = DATA_DIR / "reference_ranges.json"
 CHROMA_DIR = ROOT_DIR / "chroma_db"
 
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-MODEL = os.environ.get("ROOTCAUSE_MODEL", "claude-opus-5")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+MODEL = os.environ.get("ROOTCAUSE_MODEL", "gemini-2.5-flash")
 
 REQUIRED_VARIABLES = ["soil_organic_carbon", "rainfall_level", "land_use"]
 

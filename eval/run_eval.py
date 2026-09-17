@@ -5,9 +5,10 @@ test_scenarios.json directly through the Causal Consistency Checker and
 reports checker precision/recall against the answer key. This is a
 white-box regression check of the checker logic against the causal map.
 
-Live mode (--live, requires ANTHROPIC_API_KEY): runs each scenario's prompt
+Live mode (--live, requires GEMINI_API_KEY): runs each scenario's prompt
 through the actual pipeline and compares the three conditions from Section 9.2
-(LLM-only, RAG-grounded, ROOTCAUSE full). This makes real, billed API calls.
+(LLM-only, RAG-grounded, ROOTCAUSE full). Uses the free Gemini API tier by
+default, so this is free to run (subject to Google's free-tier rate limits).
 """
 import argparse
 import json
@@ -130,7 +131,7 @@ def run_live(scenarios: list[dict]) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--live", action="store_true", help="Run the full 3-condition live comparison (requires ANTHROPIC_API_KEY, makes billed API calls).")
+    parser.add_argument("--live", action="store_true", help="Run the full 3-condition live comparison (requires GEMINI_API_KEY, free tier).")
     args = parser.parse_args()
 
     scenarios = load_scenarios()

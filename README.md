@@ -48,7 +48,7 @@ rootcause/
     checker.py              the Causal Consistency Checker itself
     pipeline.py             wires the stages together, with one regeneration retry on rejection
   output/formatter.py       assembles the final response: recommendation, confidence, checker status, citations
-  llm.py                    thin Claude API wrapper (chat + structured parse)
+  llm.py                    thin Gemini API wrapper (chat + structured parse), free tier by default
   config.py                 paths, model id, required-variable list
 
 app/streamlit_app.py        chat UI: free text or structured JSON input, geo-coordinates supported,
@@ -60,7 +60,7 @@ eval/
   run_eval.py                --offline (default): replays the answer key through the checker directly,
                              no API key needed, reports checker precision/recall
                              --live: runs the real LLM-only / RAG-grounded / ROOTCAUSE-full comparison
-                             from blueprint Section 9 (requires ANTHROPIC_API_KEY, makes billed calls)
+                             from blueprint Section 9 (requires GEMINI_API_KEY, free tier)
 
 tests/                      pytest suite for the graph, checker, clarification, and correlation logic
 ```
@@ -71,8 +71,10 @@ tests/                      pytest suite for the graph, checker, clarification, 
 python -m venv .venv
 .venv/Scripts/activate        # Windows; use `source .venv/bin/activate` on macOS/Linux
 pip install -r requirements.txt
-cp .env.example .env          # then fill in ANTHROPIC_API_KEY
+cp .env.example .env          # then fill in GEMINI_API_KEY
 ```
+
+Get a free `GEMINI_API_KEY` at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — just a Google account, no card, no billing setup. The default model (`gemini-2.5-flash`, set in `.env.example`) runs entirely on Google's free tier.
 
 ## Running it
 
@@ -83,10 +85,10 @@ python eval/run_eval.py
 # unit tests
 pytest tests/
 
-# the chat app (needs ANTHROPIC_API_KEY in .env)
+# the chat app (needs GEMINI_API_KEY in .env)
 streamlit run app/streamlit_app.py
 
-# the full live 3-condition evaluation (needs ANTHROPIC_API_KEY, makes billed API calls)
+# the full live 3-condition evaluation (needs GEMINI_API_KEY, free tier)
 python eval/run_eval.py --live
 ```
 
