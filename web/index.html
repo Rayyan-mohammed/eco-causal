@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ROOTCAUSE — Causal Biodiversity Advisor</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">🌱</span>
+      <div>
+        <div class="brand-name">ROOTCAUSE</div>
+        <div class="brand-tag">Causal Consistency for Biodiversity Advisory</div>
+      </div>
+    </div>
+    <a class="repo-link" href="https://github.com/Rayyan-mohammed/eco-causal" target="_blank" rel="noopener">View source →</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1>A biodiversity advisor that checks its own reasoning<br class="hide-mobile"> before it answers you.</h1>
+    <p>
+      Standard RAG chatbots verify that a fact exists in a source. ROOTCAUSE goes further: every
+      multi-variable recommendation is extracted into a causal chain and checked, edge by edge,
+      against a source-cited map — before it ever reaches you.
+    </p>
+  </div>
+</section>
+
+<main class="layout">
+  <section class="chat-panel">
+    <div id="status-banner" class="status-banner hidden"></div>
+    <div id="chat-log" class="chat-log"></div>
+    <form id="chat-form" class="chat-form">
+      <input id="chat-input" type="text" autocomplete="off"
+             placeholder="Describe your site and what you're concerned about…" />
+      <button type="submit" id="send-btn">Send</button>
+    </form>
+  </section>
+
+  <aside class="sidebar">
+    <div class="card">
+      <h3>Known site variables</h3>
+      <pre id="known-vars">None yet — these fill in as the conversation progresses.</pre>
+    </div>
+
+    <div class="card">
+      <h3>Structured JSON input</h3>
+      <p class="muted">Submit site variables directly instead of free text. Geo-coordinates are inferred into a climate zone.</p>
+      <textarea id="json-input" rows="5" placeholder='{"soil_organic_carbon": 0.4, "rainfall_level": 250, "land_use": "monoculture wheat", "latitude": 17.4, "longitude": 78.5}'></textarea>
+      <button id="apply-json-btn" class="secondary-btn">Apply JSON</button>
+      <div id="json-status" class="json-status"></div>
+    </div>
+
+    <button id="reset-btn" class="ghost-btn">Reset conversation</button>
+  </aside>
+</main>
+
+<template id="tpl-message">
+  <div class="msg">
+    <div class="msg-role"></div>
+    <div class="msg-bubble">
+      <div class="msg-text"></div>
+      <div class="msg-meta hidden">
+        <div class="chips impacted-metrics"></div>
+        <div class="time-horizon"></div>
+        <div class="checker-line">
+          <span class="badge"></span>
+          <span class="confidence"></span>
+        </div>
+        <div class="graph-wrap hidden">
+          <div class="graph-title">Reasoning chain checked against the causal map</div>
+          <div class="graph-canvas"></div>
+          <div class="graph-legend">
+            <span><i class="dot ok"></i> supported</span>
+            <span><i class="dot warn"></i> condition unverified/unmet</span>
+            <span><i class="dot bad"></i> not documented (or reversed)</span>
+          </div>
+        </div>
+        <details class="sources hidden">
+          <summary>Sources</summary>
+          <ul></ul>
+        </details>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/vis-network@9/standalone/umd/vis-network.min.js"></script>
+<script src="/assets/app.js"></script>
+</body>
+</html>

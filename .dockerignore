@@ -1,0 +1,11 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.git/
+.pytest_cache/
+chroma_db/
+eval/results/*.json
+.env
+.streamlit/secrets.toml
+node_modules/
