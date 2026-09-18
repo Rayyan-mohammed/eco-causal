@@ -16,6 +16,8 @@ ROOTCAUSE answers questions like *"biodiversity is declining on my wheat farm, s
 
 > **Status: working end to end and deployed.** 55 tests pass, the checker agrees with a hand-labelled answer key on 64/64 claims (offline), and the three-condition live comparison has been run four times on 2026-09-18. It is a research-style prototype: the causal map covers 32 variables and 59 relationships, not the whole of ecology. See [Honest limitations](#honest-limitations).
 
+![ROOTCAUSE web UI: chat, site variables and structured JSON input](docs/ui.png)
+
 ---
 
 ## Architecture
@@ -147,8 +149,7 @@ A goal-only query ("biodiversity is declining") returned passages about the prob
 - **Evaluation is small and self-scored.** 30 scenarios, one author, one model, the same checker generating and scoring the comparison. Not a substitute for expert review.
 - **Deployed defaults trade quality for reliability.** The hosted app retries a rejected draft once (evaluation: three) to stay within request timeouts.
 - **Free-tier constraints.** Gemini rate limits and 503s occur; the client rotates across keys, but responses can be slow. Render's free tier sleeps when idle. Sessions are in memory and lost on restart.
-- **No latency benchmark yet:** [TODO: measure median end-to-end seconds per turn on the deployed app].
-- **No screenshot in this README yet:** [TODO: add UI screenshot at `docs/ui.png`].
+- **Slow on the free host.** A full advisory turn took **124.9 s and 124.0 s** on the deployed Render free instance (2 timed turns, 2026-09-18, challenge example input), against **38.6 s** for the same input run locally (4 Gemini calls, the first taking 20.1 s). The clarification-only turn took 7.8 s. The hosted UI therefore shows a long wait before a recommendation appears; [TODO: profile where the extra ~85 s goes on Render's shared CPU].
 
 ---
 
