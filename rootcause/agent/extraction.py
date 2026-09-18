@@ -22,6 +22,13 @@ class ExtractedInput(BaseModel):
     land_use: Optional[str] = Field(
         None, description="Land use description, e.g. 'monoculture wheat', 'agroforestry', 'pasture'."
     )
+    grazing_intensity: Optional[str] = Field(
+        None,
+        description=(
+            "Grazing pressure if livestock grazing is mentioned, normalized to one of: "
+            "'low', 'moderate', 'high', 'overgrazed'. Only fill this if grazing is actually discussed."
+        ),
+    )
     crop: Optional[str] = None
     region: Optional[str] = None
     latitude: Optional[float] = None
