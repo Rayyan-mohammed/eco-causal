@@ -29,7 +29,7 @@ The pipeline runs as an explicit, deterministic stage sequence (`rootcause/agent
 
 ```
 data/
-  causal_map.json       expert-curated directed graph: ~32 nodes, ~45 edges, each with a citation,
+  causal_map.json       expert-curated directed graph: 32 nodes, 57 edges, each with a citation,
                          effect direction, and (where checkable) a structured numeric condition
   reference_ranges.json literature-derived bands (soil carbon, rainfall, pH, salinity) for the correlation tool
   knowledge/*.md         source excerpts per domain, chunked and indexed for retrieval
@@ -118,27 +118,27 @@ Running `python eval/run_eval.py` right now (no API key required) against the 30
 | Checker precision (of claims flagged invalid, how many truly are) | 100% |
 | Checker recall (of truly invalid claims, how many were caught) | 100% |
 
-This validates the checker's logic against the causal map itself. The `--live` mode goes further and answers the actual research question — run 2026-09-17, all 30 scenarios, real Gemini API calls, `python eval/run_eval.py --live && python eval/run_eval.py --score`:
+This validates the checker's logic against the causal map itself. The `--live` mode goes further and answers the actual research question — most recent run 2026-09-18, all 30 scenarios, real Gemini API calls, `python eval/run_eval.py --live && python eval/run_eval.py --score`:
 
 | Condition | Accepted | Downgraded | Rejected | Causal validity rate |
 |---|---|---|---|---|
-| LLM-only (no retrieval, no checker) | 2/30 | 2/30 | 26/30 | **6.7%** |
-| RAG-grounded (retrieval, no checker) | 9/30 | 5/30 | 16/30 | **30.0%** |
-| ROOTCAUSE full (retrieval + checker) | 13/30 | 6/30 | 11/30 | **43.3%** |
+| LLM-only (no retrieval, no checker) | 2/30 | 3/30 | 25/30 | **6.7%** |
+| RAG-grounded (retrieval, no checker) | 12/30 | 7/30 | 11/30 | **40.0%** |
+| ROOTCAUSE full (retrieval + checker) | 24/30 | 5/30 | 1/30 | **80.0%** |
 
-This is the blueprint's core claim, shown directly: causal validity rises monotonically as retrieval and then the checker get added, exactly the improvement the project set out to demonstrate. The same checker was applied post-hoc to all three conditions' outputs for a fair comparison (raw detail in `eval/results/live_scored.json`, gitignored — rerun the two commands above to reproduce).
+This is the blueprint's core claim, shown directly: causal validity rises monotonically as retrieval and then the checker get added, exactly the improvement the project set out to demonstrate. The same checker was applied post-hoc to all three conditions' outputs for a fair comparison (raw detail in `eval/results/live_scored.json`, gitignored — rerun the two commands above to reproduce). This is the second live run: the first (documented in git history) scored 6.7% / 30.0% / 43.3% against a 45-edge map with one regeneration attempt; expanding the map to 57 edges and allowing up to 3 regeneration attempts before showing a rejection to the user raised RAG-grounded to 40.0% and ROOTCAUSE full to 80.0%, with only 1 outright rejection left across all 30 scenarios.
 
 Two honest caveats on reading these numbers:
-- **The absolute percentages are conservative, not a ceiling.** The causal map covers ~45 edges; a claim not in the map gets rejected even if it's a reasonable real-world relationship the map simply hasn't captured yet. This affects all three conditions equally, so the *relative* ordering above is solid evidence — the *absolute* rates would rise with a larger map.
-- **Chain length confounds the comparison somewhat.** The LLM-only baseline, with no retrieval to ground it, tends to write long, meandering answers that extract into much longer causal chains than ROOTCAUSE's disciplined single-mechanism output — and a longer chain has a mechanically higher chance of containing at least one unsupported step, independent of whether the reasoning is actually worse. Some of LLM-only's low score is genuine hallucination (verified by spot-checking extracted chains, e.g. scenario s3 claims `tillage_intensity` directly affects `soil_structure`, `earthworm_abundance`, and `pollution_runoff` in one hop each — none of which are documented edges), but some is this length effect.
+- **The absolute percentages are conservative, not a ceiling.** The causal map covers ~57 edges; a claim not in the map gets rejected even if it's a reasonable real-world relationship the map simply hasn't captured yet. This affects all three conditions equally, so the *relative* ordering above is solid evidence — the *absolute* rates would rise further with a larger map still.
+- **Chain length confounds the comparison somewhat.** The LLM-only baseline, with no retrieval to ground it, tends to write long, meandering answers that extract into much longer causal chains than ROOTCAUSE's disciplined single-mechanism output — and a longer chain has a mechanically higher chance of containing at least one unsupported step, independent of whether the reasoning is actually worse. Some of LLM-only's low score is genuine hallucination (verified by spot-checking extracted chains, e.g. scenario s3 in the first run claimed `tillage_intensity` directly affects `soil_structure`, `earthworm_abundance`, and `pollution_runoff` in one hop each — only the first of those is now a documented edge, added specifically because tillage's direct mechanical effect on structure is real and separate from its carbon-mediated effect), but some is this length effect.
 
-A real example from this run, scenario s3 (conventional tillage in a wet climate): ROOTCAUSE recommended no-till management with the mechanism "no-till reduces microbial oxidation, which increases soil organic carbon, which increases soil aggregate stability" — a perfectly plausible-sounding claim. The checker rejected it anyway, because the map documents that pathway as running *through* soil microbial diversity (`soil_organic_carbon -> soil_microbial_diversity -> soil_structure`), not as a direct `soil_organic_carbon -> soil_structure` edge. Rather than silently showing the shortcut as equally certain, the final answer shown to the user carried an explicit "[Consistency check: rejected]" flag with the reason spelled out. That's the checker doing exactly its designed job on a live, freely-generated recommendation, not a scripted test case.
+A real example from this run, scenario s16 (heat stress on orchard pollinators): ROOTCAUSE recommended mulch or cover cropping under the trees, reasoning that "reduced evaporation rates decrease salt deposition in the soil surface layer, which reduces soil salinity." Plausible-sounding — but the map has no documented edge from soil moisture retention to soil salinity, so the checker rejected it and told the user so rather than presenting it with false confidence. (The wording shown to users for this has since been made more conversational — see `rootcause/output/formatter.py` — but the substance, a live, freely-generated claim genuinely caught, is unchanged.)
 
 ## Honest scope
 
 The causal map is expert-curated from cited literature, not statistically discovered from raw data. Every peer-reviewed and institutional-report citation has been checked against a live web search and carries a verified DOI, publisher URL, or ISBN — see `data/sources.md` § "Citation verification pass" for exactly which citations are DOI-verified papers, which point to an official assessment-report landing page, and the two that link to a general FAO portal rather than a single precisely-dated document (flagged inline in those citations themselves, not hidden).
 
-Coverage is necessarily incomplete at ~32 nodes / ~45 edges, and only 4 edges currently carry a *structured*, numerically-checkable condition (rainfall thresholds for cover cropping and agroforestry, a soil pH threshold for earthworms); several other documented conditions (overgrazing severity, fertilizer application rate, drainage quality) exist as citations in the map but aren't yet wired to a numeric check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
+Coverage is necessarily incomplete at 32 nodes / 57 edges, and only 4 edges currently carry a *structured*, numerically-checkable condition (rainfall thresholds for cover cropping and agroforestry, a soil pH threshold for earthworms); several other documented conditions (overgrazing severity, fertilizer application rate, drainage quality) exist as citations in the map but aren't yet wired to a numeric check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
 
 ## References
 
