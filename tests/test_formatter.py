@@ -1,4 +1,9 @@
+import pytest
+from pydantic import ValidationError
+
 from rootcause.agent.checker import CheckerVerdict
+from rootcause.causal.graph import CausalGraph
+from rootcause.config import CAUSAL_MAP_PATH
 from rootcause.agent.recommendation import RecommendationDraft
 from rootcause.output.formatter import format_response
 
@@ -9,6 +14,8 @@ def make_draft(**overrides) -> RecommendationDraft:
         mechanism="Agroforestry adoption increases soil moisture retention, which supports pollinator abundance.",
         impacted_metrics=["soil moisture retention", "pollinator abundance"],
         time_horizon="1-2 years",
+        horizon="medium",
+        expected_effect="Not quantified in the retrieved evidence.",
     )
     defaults.update(overrides)
     return RecommendationDraft(**defaults)
@@ -47,3 +54,31 @@ def test_citations_deduplicated_and_sorted_from_retrieved():
     ]
     result = format_response(draft, verdict, retrieved)
     assert result["citations"] == ["A source", "B source"]
+
+
+def test_horizon_must_be_short_medium_or_long():
+    with pytest.raises(ValidationError):
+        make_draft(horizon="eventually")
+
+
+def test_horizon_and_expected_effect_are_passed_through():
+    draft = make_draft(horizon="short", expected_effect="~0.32 Mg C/ha/yr (Poeplau & Don 2015)")
+    verdict = CheckerVerdict(status="accepted", confidence="high", explanation="ok")
+    result = format_response(draft, verdict, retrieved=[])
+    assert result["horizon"] == "short"
+    assert result["expected_effect"].startswith("~0.32")
+
+
+def test_step_evidence_carries_each_documented_edges_own_citation():
+    graph = CausalGraph.from_file(CAUSAL_MAP_PATH)
+    results = [
+        graph.check_edge("agroforestry_adoption", "soil_organic_carbon", {}),  # documented
+        graph.check_edge("crop_diversity", "vegetation_cover", {}),  # NOT documented
+    ]
+    verdict = CheckerVerdict(status="rejected", confidence="low", edge_results=results, explanation="x")
+    evidence = format_response(make_draft(), verdict, retrieved=[])["step_evidence"]
+
+    # Only the documented step appears, and it cites the paper attached to that edge.
+    assert len(evidence) == 1
+    assert evidence[0]["cause"] == "agroforestry adoption"
+    assert "Shi, Feng, Xu & Kuzyakov" in evidence[0]["citation"]

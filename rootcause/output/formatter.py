@@ -15,6 +15,25 @@ def _plain_language_note(verdict: CheckerVerdict) -> str:
     return f"I want to be upfront: {detail} So please treat this as unverified rather than a confident recommendation."
 
 
+def _step_evidence(verdict: CheckerVerdict) -> list[dict]:
+    """The literature behind each step of the checked chain. Each edge in the
+    causal map carries its own citation, so this is claim-specific evidence —
+    unlike `citations`, which is whatever the retriever happened to return."""
+    steps = []
+    for r in verdict.edge_results:
+        if not r.exists or not r.edge:
+            continue
+        steps.append({
+            "cause": r.source.replace("_", " "),
+            "effect": r.target.replace("_", " "),
+            "direction": r.edge.get("effect"),
+            "mechanism": r.edge.get("mechanism"),
+            "citation": r.edge.get("citation"),
+            "confidence": r.edge.get("confidence"),
+        })
+    return steps
+
+
 def format_response(draft: RecommendationDraft, verdict: CheckerVerdict, retrieved: list[dict]) -> dict:
     """Assembles the challenge's required output shape: recommendation,
     impacted metrics, time horizon, confidence level, and citation — as
@@ -32,9 +51,12 @@ def format_response(draft: RecommendationDraft, verdict: CheckerVerdict, retriev
         "mechanism": draft.mechanism,
         "impacted_metrics": draft.impacted_metrics,
         "time_horizon": draft.time_horizon,
+        "horizon": draft.horizon,
+        "expected_effect": draft.expected_effect,
         "confidence": verdict.confidence,
         "checker_status": verdict.status,
         "checker_explanation": verdict.explanation,
         "citations": citations,
         "edge_results": verdict.edge_results,
+        "step_evidence": _step_evidence(verdict),
     }
