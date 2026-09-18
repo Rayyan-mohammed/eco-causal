@@ -78,6 +78,45 @@ eval/
 tests/                      pytest suite for the graph, checker, clarification, and correlation logic
 ```
 
+## Data model
+
+There is no relational database. Knowledge lives in two stores, both built from files in `data/`:
+
+**1. Vector store (Chroma, persisted in `chroma_db/`, rebuilt from `data/knowledge/*.md`)** - 43 chunks across five domains (soil health, land use, biodiversity, climate, human impact).
+
+| Field | Meaning |
+|---|---|
+| id | `domain::section title` |
+| document | the section text, with its title as first line |
+| metadata.domain | one of the five domains |
+| metadata.citation | the `Source:` line under that section |
+| embedding | default ONNX MiniLM, cosine distance |
+
+**2. Causal map (`data/causal_map.json`)** - 32 nodes and 59 directed edges, loaded into a NetworkX graph.
+
+| Edge field | Meaning |
+|---|---|
+| id | `e1` ... `e59` |
+| source, target | node ids (a node has id, label, domain) |
+| effect | increases / decreases |
+| mechanism | one-sentence explanation |
+| condition | free-text condition the edge depends on (optional) |
+| condition_check | structured `{variable, operator (gt/gte/lt/lte/eq/in), value}` evaluated against the user's site data (optional) |
+| confidence | high / medium / low |
+| citation | peer-reviewed paper or institutional report |
+
+**Session state** (`rootcause/agent/state.py`) is held in memory per session id: known site variables, the user's stated concern, pending clarification, and message history. It is not persisted across server restarts.
+
+## CI/CD
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push and pull request to `main`, as three jobs:
+
+1. **backend** - Python 3.11, installs `requirements.txt`, runs the offline evaluation (`python eval/run_eval.py`) and `pytest tests/`.
+2. **frontend** - Node 20, `npm ci`, `npm run lint`, `npm run build`.
+3. **docker** - runs after both, builds the multi-stage `Dockerfile` (Node builds the UI, Python serves it) without pushing.
+
+Deployment is a Docker web service (Render, Fly.io or Railway) built directly from the `Dockerfile`; see "Deploying a live URL".
+
 ## Setup
 
 ```bash
@@ -153,7 +192,7 @@ This is the blueprint's core claim, shown directly and reproducibly across three
 **Note on the deployed app vs. these eval numbers:** the live web app defaults to **1** regeneration attempt, not 3 — a request that retries up to 3 times (each retry being 2+ sequential Gemini calls) risks exceeding a hosting platform's own request timeout (a hard failure, worse than a lower-confidence answer). `eval/run_eval.py --live` raises this back to 3 automatically via `ROOTCAUSE_MAX_REGENERATIONS`, since a local/CI run isn't latency-constrained the same way a live request is. So the deployed app trades a little causal-validity ceiling for reliability; set `ROOTCAUSE_MAX_REGENERATIONS=3` yourself if you're running it somewhere with a generous timeout and want the higher-quality behavior live.
 
 Two honest caveats on reading these numbers:
-- **The absolute percentages are conservative, not a ceiling.** The causal map covers 58 edges; a claim not in the map gets rejected even if it's a reasonable real-world relationship the map simply hasn't captured yet. This affects all three conditions equally, so the *relative* ordering above is solid evidence — the *absolute* rates would rise further with a larger map still.
+- **The absolute percentages are conservative, not a ceiling.** The causal map covers 59 edges; a claim not in the map gets rejected even if it's a reasonable real-world relationship the map simply hasn't captured yet. This affects all three conditions equally, so the *relative* ordering above is solid evidence — the *absolute* rates would rise further with a larger map still.
 - **Chain length confounds the comparison somewhat.** The LLM-only baseline, with no retrieval to ground it, tends to write long, meandering answers that extract into much longer causal chains than ROOTCAUSE's disciplined single-mechanism output — and a longer chain has a mechanically higher chance of containing at least one unsupported step, independent of whether the reasoning is actually worse. Some of LLM-only's low score is genuine hallucination (verified by spot-checking extracted chains, e.g. one run had `tillage_intensity` claimed to directly affect `soil_structure`, `earthworm_abundance`, and `pollution_runoff` in one hop each — only the first two are documented edges, added specifically because tillage's direct mechanical effects are real and separate from its carbon-mediated effect), but some is this length effect.
 
 A real example from Run B, scenario s16 (heat stress on orchard pollinators): ROOTCAUSE recommended organic mulching, reasoning that "mulching increases soil moisture retention, which decreases surface evaporation, which reduces the upward capillary movement of salts, thereby lowering surface soil salinity." That mechanism is real and now in the map (added specifically because this exact claim showed up in an earlier run and was verified against the literature — see `data/causal_map.json` edge `e58`) — but the map is honest that the condition under which it holds (evaporation-driven salinization under irrigation specifically) couldn't be confirmed from what the user had said, so the answer was downgraded with the caveat spelled out rather than presented as fully certain. That's the intended behavior for a claim that's directionally right but incompletely verifiable, not a bug.
@@ -162,7 +201,7 @@ A real example from Run B, scenario s16 (heat stress on orchard pollinators): RO
 
 The causal map is expert-curated from cited literature, not statistically discovered from raw data. Every peer-reviewed and institutional-report citation has been checked against a live web search and carries a verified DOI, publisher URL, or ISBN — see `data/sources.md` § "Citation verification pass" for exactly which citations are DOI-verified papers, which point to an official assessment-report landing page, and the two that link to a general FAO portal rather than a single precisely-dated document (flagged inline in those citations themselves, not hidden).
 
-Coverage is necessarily incomplete at 32 nodes / 58 edges, and only 11 edges currently carry a *structured*, checkable condition — rainfall thresholds (cover cropping, agroforestry, the rainfall-vegetation link, irrigation-driven salinity, irrigation-driven yield), a soil pH threshold for earthworms, and categorical grazing severity (three edges). Several other documented conditions (fertilizer application rate/timing, drainage quality specifically, deforestation scale/timescale) exist as citations in the map but aren't yet wired to a check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
+Coverage is necessarily incomplete at 32 nodes / 59 edges, and only 11 edges currently carry a *structured*, checkable condition — rainfall thresholds (cover cropping, agroforestry, the rainfall-vegetation link, irrigation-driven salinity, irrigation-driven yield), a soil pH threshold for earthworms, and categorical grazing severity (three edges). Several other documented conditions (fertilizer application rate/timing, drainage quality specifically, deforestation scale/timescale) exist as citations in the map but aren't yet wired to a check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
 
 ## References
 
