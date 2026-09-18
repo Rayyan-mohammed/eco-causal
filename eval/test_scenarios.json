@@ -171,8 +171,8 @@
             "crop_yield"
           ]
         ],
-        "expected": "downgraded",
-        "reason": "irrigation_water_use -> soil_salinity carries a drainage/evaporation condition that is not yet numerically checkable in the MVP causal map, so the chain is correctly downgraded rather than accepted outright even though soil_salinity -> crop_yield alone is unconditional."
+        "expected": "accepted",
+        "reason": "rainfall_level=150 satisfies the <600mm arid-climate proxy now wired to this edge's condition_check, and soil_salinity -> crop_yield is unconditional."
       },
       {
         "chain": [
@@ -673,8 +673,8 @@
             "vegetation_cover"
           ]
         ],
-        "expected": "downgraded",
-        "reason": "This edge's condition (below the local waterlogging threshold) cannot be verified from the information given."
+        "expected": "accepted",
+        "reason": "rainfall_level=700 satisfies the <=2500mm condition_check now wired to this edge (well below the very-high-rainfall waterlogging range)."
       },
       {
         "chain": [
@@ -1021,8 +1021,8 @@
             "soil_salinity"
           ]
         ],
-        "expected": "downgraded",
-        "reason": "This edge's drainage/evaporation condition is not yet numerically checkable in the MVP causal map, so it is correctly downgraded rather than accepted outright."
+        "expected": "accepted",
+        "reason": "rainfall_level=180 satisfies the <600mm arid-climate proxy now wired to this edge's condition_check."
       },
       {
         "chain": [

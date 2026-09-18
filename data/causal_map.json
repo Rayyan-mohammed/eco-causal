@@ -582,7 +582,8 @@
       "target": "vegetation_cover",
       "effect": "increases",
       "mechanism": "More rainfall supports greater plant biomass, up to a site-specific saturation point.",
-      "condition": "below waterlogging threshold for the local ecosystem",
+      "condition": "annual rainfall below roughly 2500mm; beyond very-high-rainfall tropical-wet levels, waterlogging risk can offset the benefit",
+      "condition_check": {"variable": "rainfall_level", "operator": "lte", "value": 2500},
       "confidence": "medium",
       "citation": "General agroecology / rangeland ecology literature synthesized in FAO Land and Water reports."
     },
@@ -612,7 +613,8 @@
       "target": "soil_salinity",
       "effect": "increases",
       "mechanism": "Evaporation of irrigation water leaves dissolved salts behind in the root zone.",
-      "condition": "poor drainage, or arid/semi-arid climate with high evaporation",
+      "condition": "poor drainage, or an arid/semi-arid climate with high evaporation (checked here via rainfall as a partial proxy for the climate half of this condition; drainage quality itself is not yet a tracked input)",
+      "condition_check": {"variable": "rainfall_level", "operator": "lt", "value": 600},
       "confidence": "high",
       "citation": "FAO Global Soil Partnership, International Network on Salt-Affected Soils (INSAS), https://www.fao.org/global-soil-partnership/insas/en."
     },
@@ -785,6 +787,17 @@
       "condition": null,
       "confidence": "medium",
       "citation": "IPCC AR6 Working Group I, Climate Change 2021: The Physical Science Basis, https://www.ipcc.ch/report/ar6/wg1/."
+    },
+    {
+      "id": "e58",
+      "source": "soil_moisture_retention",
+      "target": "soil_salinity",
+      "effect": "decreases",
+      "mechanism": "Practices that raise soil moisture retention (e.g. mulching) suppress surface evaporation, which reduces the upward capillary transport that concentrates salts at the soil surface.",
+      "condition": "primarily documented for evaporation-driven surface salt accumulation under irrigation; long-term interactions between mulching, irrigation, and salinity are more complex than this single edge captures",
+      "condition_check": null,
+      "confidence": "medium",
+      "citation": "Hou, Zhu & Jin (2016), 'Surface Drainage and Mulching Drip-Irrigated Tomatoes Reduces Soil Salinity and Improves Fruit Yield', PLOS ONE, https://doi.org/10.1371/journal.pone.0154799."
     }
   ]
 }
