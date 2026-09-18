@@ -36,4 +36,5 @@ def format_response(draft: RecommendationDraft, verdict: CheckerVerdict, retriev
         "checker_status": verdict.status,
         "checker_explanation": verdict.explanation,
         "citations": citations,
+        "edge_results": verdict.edge_results,
     }
