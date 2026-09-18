@@ -8,14 +8,20 @@ async function post(path, body) {
   });
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.detail || `${path} failed (${res.status})`);
+    const err = new Error(detail.detail || `${path} failed (${res.status})`);
+    err.status = res.status;
+    throw err;
   }
   return res.json();
 }
 
 async function get(path) {
   const res = await fetch(`${BASE}${path}`);
-  if (!res.ok) throw new Error(`${path} failed (${res.status})`);
+  if (!res.ok) {
+    const err = new Error(`${path} failed (${res.status})`);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 

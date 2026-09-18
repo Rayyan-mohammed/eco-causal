@@ -68,15 +68,21 @@ export default function Sidebar({ knownVariables, onApplyJson, onReset }) {
   const [jsonText, setJsonText] = useState("");
   const entries = Object.entries(knownVariables || {});
 
-  const applyJson = () => {
+  const applyJson = async () => {
     if (!jsonText.trim()) return;
+    let parsed;
     try {
-      const parsed = JSON.parse(jsonText);
-      onApplyJson(parsed);
+      parsed = JSON.parse(jsonText);
+    } catch (e) {
+      toast.error(`Invalid JSON: ${e.message}`);
+      return;
+    }
+    try {
+      await onApplyJson(parsed);
       toast.success("Variables applied");
       setJsonText("");
     } catch (e) {
-      toast.error(`Invalid JSON: ${e.message}`);
+      toast.error(e.message || "Failed to apply variables");
     }
   };
 
@@ -141,7 +147,7 @@ export default function Sidebar({ knownVariables, onApplyJson, onReset }) {
       </Card>
 
       <button
-        onClick={onReset}
+        onClick={() => onReset().catch((e) => toast.error(e.message || "Failed to reset"))}
         className="flex items-center justify-center gap-1.5 rounded-2xl border border-black/10 bg-white/70 py-2.5 text-[13px] font-medium text-black/55 shadow-sm transition hover:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-white/55 dark:hover:bg-white/[0.08]"
       >
         <RotateCcw size={14} />

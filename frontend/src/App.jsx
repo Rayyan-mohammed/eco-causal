@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import toast from "react-hot-toast";
 import { api } from "./api";
@@ -17,22 +17,31 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [knownVariables, setKnownVariables] = useState({});
   const [sending, setSending] = useState(false);
+  // Mirrors sessionId for use inside async handlers without a stale closure —
+  // state updates from a just-completed recovery aren't visible to the same tick.
+  const sessionIdRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("rc_theme", dark ? "dark" : "light");
   }, [dark]);
 
+  const adoptSession = (id) => {
+    sessionIdRef.current = id;
+    setSessionId(id);
+    sessionStorage.setItem("rc_session", id);
+  };
+
   useEffect(() => {
     (async () => {
       try {
         const stored = sessionStorage.getItem("rc_session");
         if (stored) {
+          sessionIdRef.current = stored;
           setSessionId(stored);
         } else {
           const data = await api.createSession();
-          setSessionId(data.session_id);
-          sessionStorage.setItem("rc_session", data.session_id);
+          adoptSession(data.session_id);
         }
         const status = await api.status();
         setGeminiConfigured(status.gemini_configured);
@@ -42,14 +51,32 @@ export default function App() {
     })();
   }, []);
 
+  // Free-tier hosts spin the server down after inactivity; when it wakes back
+  // up, its in-memory session store is empty even though this tab's
+  // sessionStorage still has the old id. Rather than surface that as a raw
+  // "unknown session" error, get a fresh session and retry once transparently.
+  const withSessionRecovery = async (call) => {
+    try {
+      return await call(sessionIdRef.current);
+    } catch (e) {
+      if (e.status === 404) {
+        const data = await api.createSession();
+        adoptSession(data.session_id);
+        toast("Reconnected — the server restarted, so site variables were reset.", { icon: "🔄" });
+        return await call(sessionIdRef.current);
+      }
+      throw e;
+    }
+  };
+
   const sendMessage = async (text) => {
-    if (!sessionId) return;
+    if (!sessionIdRef.current) return;
     setMessages((m) => [...m, { id: nextId(), role: "user", text }]);
     const pendingId = nextId();
     setMessages((m) => [...m, { id: pendingId, role: "assistant", text: "", pending: true }]);
     setSending(true);
     try {
-      const result = await api.chat(sessionId, text);
+      const result = await withSessionRecovery((sid) => api.chat(sid, text));
       setKnownVariables(result.known_variables || {});
       setMessages((m) =>
         m.map((msg) => (msg.id === pendingId ? { id: pendingId, role: "assistant", text: result.text, meta: result } : msg))
@@ -69,14 +96,14 @@ export default function App() {
   };
 
   const applyJson = async (variables) => {
-    if (!sessionId) return;
-    const data = await api.setVariables(sessionId, variables);
+    if (!sessionIdRef.current) return;
+    const data = await withSessionRecovery((sid) => api.setVariables(sid, variables));
     setKnownVariables(data.known_variables || {});
   };
 
   const reset = async () => {
-    if (!sessionId) return;
-    await api.reset(sessionId);
+    if (!sessionIdRef.current) return;
+    await withSessionRecovery((sid) => api.reset(sid));
     setMessages([]);
     setKnownVariables({});
   };
