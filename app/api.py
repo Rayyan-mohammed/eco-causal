@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -101,10 +101,19 @@ def chat(req: ChatRequest) -> dict:
 
 
 # Serve the built React app (frontend/dist, produced by `npm run build`).
-# Mounted/declared last so neither shadows the /api/* routes above.
-app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")
+# Mounted/declared last so neither shadows the /api/* routes above. The API
+# stays fully usable without a build (fresh clone, CI, backend-only work); only
+# the UI routes degrade, with a message saying what to run.
+if (FRONTEND_DIST / "assets").is_dir():
+    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")
 
 
 @app.get("/{full_path:path}")
-def spa(full_path: str) -> FileResponse:
-    return FileResponse(str(FRONTEND_DIST / "index.html"))
+def spa(full_path: str):
+    index = FRONTEND_DIST / "index.html"
+    if not index.is_file():
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Frontend not built. Run `npm install && npm run build` in frontend/."},
+        )
+    return FileResponse(str(index))

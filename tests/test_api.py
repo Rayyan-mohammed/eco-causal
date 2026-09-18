@@ -1,14 +1,24 @@
 from fastapi.testclient import TestClient
 
-from app.api import app
+from app.api import FRONTEND_DIST, app
 
 client = TestClient(app)
 
 
-def test_index_serves_frontend():
+def test_index_serves_frontend_or_explains_missing_build():
     response = client.get("/")
-    assert response.status_code == 200
-    assert "ROOTCAUSE" in response.text
+    if (FRONTEND_DIST / "index.html").is_file():
+        assert response.status_code == 200
+        assert "ROOTCAUSE" in response.text
+    else:
+        # Fresh clone / backend-only CI: the API must still import and the UI
+        # route must say what to run, not crash.
+        assert response.status_code == 503
+        assert "npm run build" in response.json()["detail"]
+
+
+def test_api_routes_are_not_shadowed_by_the_frontend_catch_all():
+    assert client.get("/api/status").status_code == 200
 
 
 def test_status_endpoint():
