@@ -31,3 +31,11 @@ Source: IPBES (2019), Global Assessment Report on Biodiversity and Ecosystem Ser
 ## Irrigation as a direct yield lever in water-limited systems
 Where rainfall alone is insufficient, supplemental irrigation directly relieves crop water stress. Globally, irrigated cropland produces yields averaging 76 percent higher than rainfed cropland, making it one of the most direct interventions available in a rainfed or water-limited baseline — though it must be weighed against the salinization and drainage risks documented elsewhere in this knowledge base.
 Source: FAO, Land and Water Division, Irrigation overview, https://www.fao.org/land-water/water/agricultural-water-management/irrigation/en.
+
+## Measured soil carbon difference under agroforestry
+A meta-analysis of 427 paired soil carbon stock comparisons across alley cropping, windbreaks, silvopasture, and homegardens found that mean soil carbon stock in agroforestry (measured to 1 metre depth) was 126 Mg C per hectare, about 19% higher than in adjacent cropland or pasture. This is a difference in stock between paired land-use systems, not a rate of gain over a stated number of years, so it should not be read as a promised increase over a fixed period. Stocks were highest in subtropical homegardens, in agroforestry with younger trees, and in the topsoil (0-20 cm).
+Source: Shi, Feng, Xu & Kuzyakov (2018), 'Agroforestry systems: Meta-analysis of soil carbon stocks, sequestration processes, and future potentials', Land Degradation & Development 29:3886-3897, https://doi.org/10.1002/ldr.3136.
+
+## Vegetation cover and wind erosion
+Maintaining vegetation cover can reduce wind erosion by more than 80 percent according to FAO's assessment of soil erosion, and cover also improves water absorption; reduced- or no-till practices are also effective, especially in drier regions.
+Source: FAO (2019), Soil Erosion: The Greatest Challenge for Sustainable Soil Management, https://openknowledge.fao.org/items/6c070e1e-6533-4b7e-ba5f-a2f21a0e59ff.

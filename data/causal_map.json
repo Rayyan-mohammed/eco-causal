@@ -503,7 +503,17 @@
       "effect": "decreases",
       "mechanism": "Livestock trampling compacts soil, reducing porosity and aggregate stability.",
       "condition": "grazing pressure exceeds land carrying capacity (overgrazing)",
-      "condition_check": {"variable": "grazing_intensity", "operator": "in", "value": ["high", "overgrazed", "excessive", "heavy", "severe"]},
+      "condition_check": {
+        "variable": "grazing_intensity",
+        "operator": "in",
+        "value": [
+          "high",
+          "overgrazed",
+          "excessive",
+          "heavy",
+          "severe"
+        ]
+      },
       "confidence": "high",
       "citation": "FAO, Sustainable rangeland management in Sub-Saharan Africa: Guidelines to Good Practice, https://www.fao.org/family-farming/detail/en/c/1632938/ (exact publication year not independently verified in this pass)."
     },
@@ -524,7 +534,17 @@
       "effect": "decreases",
       "mechanism": "Overgrazing removes vegetation faster than it can regenerate.",
       "condition": "grazing pressure exceeds land carrying capacity (overgrazing)",
-      "condition_check": {"variable": "grazing_intensity", "operator": "in", "value": ["high", "overgrazed", "excessive", "heavy", "severe"]},
+      "condition_check": {
+        "variable": "grazing_intensity",
+        "operator": "in",
+        "value": [
+          "high",
+          "overgrazed",
+          "excessive",
+          "heavy",
+          "severe"
+        ]
+      },
       "confidence": "high",
       "citation": "FAO, Sustainable rangeland management in Sub-Saharan Africa: Guidelines to Good Practice, https://www.fao.org/family-farming/detail/en/c/1632938/ (exact publication year not independently verified in this pass)."
     },
@@ -585,7 +605,11 @@
       "effect": "increases",
       "mechanism": "More rainfall supports greater plant biomass, up to a site-specific saturation point.",
       "condition": "annual rainfall below roughly 2500mm; beyond very-high-rainfall tropical-wet levels, waterlogging risk can offset the benefit",
-      "condition_check": {"variable": "rainfall_level", "operator": "lte", "value": 2500},
+      "condition_check": {
+        "variable": "rainfall_level",
+        "operator": "lte",
+        "value": 2500
+      },
       "confidence": "medium",
       "citation": "General agroecology / rangeland ecology literature synthesized in FAO Land and Water reports."
     },
@@ -616,7 +640,11 @@
       "effect": "increases",
       "mechanism": "Evaporation of irrigation water leaves dissolved salts behind in the root zone.",
       "condition": "poor drainage, or an arid/semi-arid climate with high evaporation (checked here via rainfall as a partial proxy for the climate half of this condition; drainage quality itself is not yet a tracked input)",
-      "condition_check": {"variable": "rainfall_level", "operator": "lt", "value": 600},
+      "condition_check": {
+        "variable": "rainfall_level",
+        "operator": "lt",
+        "value": 600
+      },
       "confidence": "high",
       "citation": "FAO Global Soil Partnership, International Network on Salt-Affected Soils (INSAS), https://www.fao.org/global-soil-partnership/insas/en."
     },
@@ -707,7 +735,17 @@
       "effect": "decreases",
       "mechanism": "Overgrazing removes vegetation faster than it regenerates, reducing organic matter inputs to soil and increasing erosion losses.",
       "condition": "grazing pressure exceeds land carrying capacity (overgrazing)",
-      "condition_check": {"variable": "grazing_intensity", "operator": "in", "value": ["high", "overgrazed", "excessive", "heavy", "severe"]},
+      "condition_check": {
+        "variable": "grazing_intensity",
+        "operator": "in",
+        "value": [
+          "high",
+          "overgrazed",
+          "excessive",
+          "heavy",
+          "severe"
+        ]
+      },
       "confidence": "medium",
       "citation": "FAO (2021), Rangeland and Pasture Management guidance, https://www.fao.org/family-farming/detail/en/c/1632938/."
     },
@@ -738,7 +776,11 @@
       "effect": "increases",
       "mechanism": "Supplemental water directly relieves moisture stress on crops in a rainfed or water-limited baseline.",
       "condition": "site is otherwise rainfed or water-limited (checked here via rainfall below roughly 600mm); irrigated yields average 76% higher than rainfed yields globally",
-      "condition_check": {"variable": "rainfall_level", "operator": "lt", "value": 600},
+      "condition_check": {
+        "variable": "rainfall_level",
+        "operator": "lt",
+        "value": 600
+      },
       "confidence": "high",
       "citation": "FAO, Land and Water Division, Irrigation overview, https://www.fao.org/land-water/water/agricultural-water-management/irrigation/en."
     },
@@ -799,9 +841,23 @@
       "effect": "decreases",
       "mechanism": "Practices that raise soil moisture retention (e.g. mulching) suppress surface evaporation, which reduces the upward capillary transport that concentrates salts at the soil surface.",
       "condition": "primarily documented for evaporation-driven surface salt accumulation, which is a live risk mainly under arid/semi-arid conditions (checked here via rainfall below roughly 600mm); long-term interactions between mulching, irrigation, and salinity in wetter climates are more complex than this single edge captures",
-      "condition_check": {"variable": "rainfall_level", "operator": "lt", "value": 600},
+      "condition_check": {
+        "variable": "rainfall_level",
+        "operator": "lt",
+        "value": 600
+      },
       "confidence": "medium",
       "citation": "Hou, Zhu & Jin (2016), 'Surface Drainage and Mulching Drip-Irrigated Tomatoes Reduces Soil Salinity and Improves Fruit Yield', PLOS ONE, https://doi.org/10.1371/journal.pone.0154799."
+    },
+    {
+      "id": "e59",
+      "source": "agroforestry_adoption",
+      "target": "soil_organic_carbon",
+      "effect": "increases",
+      "mechanism": "Trees add root biomass and leaf-litter carbon inputs that cropland without trees does not, so paired comparisons find higher soil carbon stocks under agroforestry.",
+      "condition": null,
+      "confidence": "medium",
+      "citation": "Shi, Feng, Xu & Kuzyakov (2018), 'Agroforestry systems: Meta-analysis of soil carbon stocks, sequestration processes, and future potentials', Land Degradation & Development 29:3886-3897, https://doi.org/10.1002/ldr.3136."
     }
   ]
 }

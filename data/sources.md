@@ -39,6 +39,12 @@ Every peer-reviewed and institutional-report citation in `data/causal_map.json` 
 - Landis, Wratten & Gurr (2000) — `10.1146/annurev.ento.45.1.175`
 - Edwards & Bohlen (1996) — book, ISBN 978-0-412-56160-3 (no DOI; 3rd ed., Chapman & Hall)
 - FAO (2017), Agroforestry for Landscape Restoration — `10.4060/i7374e`
+- West & Post (2002) — Soil Science Society of America Journal 66:1930-1946, `10.2136/sssaj2002.1930` (no-till 57 ± 14 g C m⁻² yr⁻¹, excluding wheat-fallow; rotation complexity 14 ± 11 g C m⁻² yr⁻¹)
+- Shi, Feng, Xu & Kuzyakov (2018) — Land Degradation & Development 29:3886-3897, `10.1002/ldr.3136` (427 paired comparisons; agroforestry soil C stock 126 Mg C/ha, ~19% above adjacent cropland/pasture — a stock difference, not a rate)
+- Albrecht et al. (2020) — Ecology Letters 23:1488-1498, `10.1111/ele.13576` (flower strips +16% pest control on average; pollination effects more variable)
+- Tamburini et al. (2020) — Science Advances 6(45):eaba1715, `10.1126/sciadv.aba1715` (diversification enhances biodiversity, pollination, pest regulation without lowering yield)
+- Hou, Zhu & Jin (2016) — PLOS ONE, `10.1371/journal.pone.0154799` (mulching and surface salinity)
+- Geiger et al. (2010) — Basic and Applied Ecology 11(2):97-105, `10.1016/j.baae.2009.12.001`
 
 **Verified with an official landing page (institutional reports/assessments):**
 - IPBES (2016) Pollinators Assessment — https://www.ipbes.net/assessment-reports/pollinators
