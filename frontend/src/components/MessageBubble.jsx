@@ -1,0 +1,122 @@
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Clock } from "lucide-react";
+import { useState } from "react";
+import ReasoningGraph from "./ReasoningGraph";
+import StatusBadge from "./StatusBadge";
+
+function TypingIndicator() {
+  return (
+    <div className="flex items-center gap-1 py-1">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="h-1.5 w-1.5 rounded-full bg-forest-500/70"
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ repeat: Infinity, duration: 1.1, delay: i * 0.15 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function SourcesDisclosure({ citations }) {
+  const [open, setOpen] = useState(false);
+  if (!citations?.length) return null;
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 text-[12px] font-semibold text-forest-700 dark:text-forest-300"
+      >
+        <ChevronDown size={13} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+        Sources ({citations.length})
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.ul
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-2 space-y-1.5 overflow-hidden pl-4 text-[11.5px] leading-relaxed text-black/50 dark:text-white/45"
+          >
+            {citations.map((c, i) => (
+              <li key={i} className="list-disc">
+                {c}
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function MessageBubble({ role, text, meta, pending }) {
+  const isUser = role === "user";
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+    >
+      <div className={`max-w-[92%] sm:max-w-[85%] ${isUser ? "items-end" : "items-start"} flex flex-col gap-1`}>
+        <span className="px-1 text-[10.5px] font-semibold uppercase tracking-wide text-black/35 dark:text-white/35">
+          {isUser ? "You" : "ROOTCAUSE"}
+        </span>
+        <div
+          className={
+            isUser
+              ? "rounded-2xl rounded-tr-sm bg-forest-700 px-4 py-3 text-[14px] leading-relaxed text-white shadow-sm"
+              : "rounded-2xl rounded-tl-sm bg-forest-50 px-4 py-3.5 text-[14px] leading-relaxed text-forest-950 shadow-sm dark:bg-white/[0.06] dark:text-white/90"
+          }
+        >
+          {pending ? <TypingIndicator /> : <div className="whitespace-pre-wrap">{text}</div>}
+
+          {meta?.checker_status && (
+            <div className="mt-3.5 flex flex-col gap-3">
+              {meta.impacted_metrics?.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {meta.impacted_metrics.map((m) => (
+                    <span
+                      key={m}
+                      className="rounded-full border border-black/10 bg-white px-2.5 py-1 text-[11px] font-medium text-forest-800 dark:border-white/10 dark:bg-black/20 dark:text-forest-200"
+                    >
+                      {m}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {meta.time_horizon && (
+                <div className="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/45">
+                  <Clock size={13} />
+                  <span className="font-medium text-black/70 dark:text-white/70">{meta.time_horizon}</span>
+                </div>
+              )}
+
+              <StatusBadge status={meta.checker_status} confidence={meta.confidence} />
+
+              {meta.edge_results?.length > 0 && (
+                <div>
+                  <div className="mb-1.5 text-[11px] font-medium text-black/40 dark:text-white/40">
+                    Reasoning chain checked against the causal map
+                  </div>
+                  <ReasoningGraph edgeResults={meta.edge_results} />
+                  <div className="mt-1.5 flex gap-3 text-[10.5px] text-black/40 dark:text-white/40">
+                    <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-[#2f9e5c]" /> supported</span>
+                    <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-[#c98a1f]" /> unverified/unmet</span>
+                    <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-[#d1453b]" /> not documented</span>
+                  </div>
+                </div>
+              )}
+
+              <SourcesDisclosure citations={meta.citations} />
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}

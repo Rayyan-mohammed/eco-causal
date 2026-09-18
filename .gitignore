@@ -10,4 +10,5 @@ eval/results/*.json
 !eval/results/.gitkeep
 .DS_Store
 .claude/
-.streamlit/secrets.toml
+frontend/node_modules/
+frontend/dist/

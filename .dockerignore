@@ -7,5 +7,5 @@ __pycache__/
 chroma_db/
 eval/results/*.json
 .env
-.streamlit/secrets.toml
-node_modules/
+frontend/node_modules/
+frontend/dist/

@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap");
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-forest-50: #eef8f1;
+  --color-forest-100: #d7efdd;
+  --color-forest-200: #b0dfbd;
+  --color-forest-300: #82c998;
+  --color-forest-400: #56b076;
+  --color-forest-500: #34945a;
+  --color-forest-600: #237847;
+  --color-forest-700: #1c5f3a;
+  --color-forest-800: #184c30;
+  --color-forest-900: #143f29;
+  --color-forest-950: #071912;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #d7e3da; border-radius: 999px; }
+.dark ::-webkit-scrollbar-thumb { background: #223428; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.react-flow__attribution { display: none; }

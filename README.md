@@ -52,15 +52,20 @@ rootcause/
   llm.py                    thin Gemini API wrapper (chat + structured parse), free tier by default
   config.py                 paths, model id, required-variable list
 
-app/api.py                  FastAPI backend for the custom web app: session-based /api/chat, /api/variables,
-                             /api/reset — a thin HTTP wrapper around the same rootcause pipeline, nothing
-                             duplicated
-web/                         the custom frontend (vanilla HTML/CSS/JS, no build step): branded landing section,
-                             chat UI, and an interactive vis-network diagram of the exact reasoning chain the
-                             checker evaluated, color-coded live — this is the primary, recommended UI
-app/streamlit_app.py        the original Streamlit UI, kept as a working fallback: same features (free text or
-                             structured JSON input, geo-coordinates inferred into a climate zone, checker
-                             verdict, a static reasoning-chain diagram), just a plainer look
+app/api.py                  FastAPI backend: session-based /api/chat, /api/variables, /api/reset — a thin
+                             HTTP wrapper around the same rootcause pipeline, nothing duplicated. Also serves
+                             the built frontend/dist in production.
+
+frontend/                    React 19 + Vite + Tailwind v4 UI — the only frontend (Streamlit and the earlier
+                             vanilla-JS version were both removed in favor of this one)
+  src/App.jsx                 session bootstrap, chat state, dark-mode persistence
+  src/components/
+    ReasoningGraph.jsx          React Flow diagram of the exact chain the checker evaluated, auto-layout,
+                                 color-coded live (green/amber/red), not a static image
+    MessageBubble.jsx           chat bubble: action + mechanism, impacted-metric chips, time horizon,
+                                 status badge, the graph, a collapsible sources list — framer-motion throughout
+    Sidebar.jsx                 known site variables (formatted, not a raw JSON dump) + structured JSON input
+    Hero.jsx / Header.jsx       landing section with a 3-step pipeline visual, sticky header, theme toggle
 
 eval/
   test_scenarios.json       30 hand-built scenarios across all 5 domains, each with a pre-labeled
@@ -80,6 +85,11 @@ python -m venv .venv
 .venv/Scripts/activate        # Windows; use `source .venv/bin/activate` on macOS/Linux
 pip install -r requirements.txt
 cp .env.example .env          # then fill in GEMINI_API_KEY
+
+cd frontend
+npm install
+npm run build                 # produces frontend/dist, which app/api.py serves
+cd ..
 ```
 
 Get a free `GEMINI_API_KEY` at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — just a Google account, no card, no billing setup. The default model (`gemini-3.1-flash-lite`, set in `.env.example`) runs entirely on Google's free tier. (`gemini-2.5-flash` and `gemini-2.0-flash` have since been retired for new API users — Google's own 404 error names the current replacement generation; `gemini-3.1-flash-lite` was chosen over the flagship `gemini-3.6-flash` after live testing found the latter frequently 503s under free-tier demand.)
@@ -92,15 +102,16 @@ Get a free `GEMINI_API_KEY` at [aistudio.google.com/apikey](https://aistudio.goo
 # offline eval — no API key needed, verifies the checker against the answer key
 python eval/run_eval.py
 
-# unit tests
+# unit tests (includes the FastAPI routes; needs frontend/dist to exist — run npm run build first)
 pytest tests/
 
-# the custom web app — primary UI, needs GEMINI_API_KEY in .env
+# production mode: one server, needs GEMINI_API_KEY in .env and frontend/dist already built
 uvicorn app.api:app --reload
 # then open http://127.0.0.1:8000
 
-# the Streamlit app — plainer fallback UI, same backend
-streamlit run app/streamlit_app.py
+# frontend dev mode instead (hot reload): run these two in separate terminals
+uvicorn app.api:app --reload            # backend on :8000
+cd frontend && npm run dev              # frontend on :5173, proxies /api to :8000
 
 # the full live 3-condition evaluation (needs GEMINI_API_KEY, free tier)
 python eval/run_eval.py --live
@@ -111,28 +122,13 @@ python eval/run_eval.py --score
 
 ## Deploying a live URL
 
-Both UIs are deploy-ready as-is: the knowledge base auto-builds on first run if missing (`rootcause/agent/tools.py`), so there's no manual indexing step on a fresh host.
-
-### Option A — the custom web app (recommended; needs a Docker-capable host)
-
-`app/api.py` + `web/` is a plain FastAPI service with a `Dockerfile` already in the repo — it deploys to any container host. **Render** has a genuinely free tier for this:
+The knowledge base auto-builds on first run if missing (`rootcause/agent/tools.py`), so there's no manual indexing step on a fresh host. The repo's `Dockerfile` is a multi-stage build — a Node stage builds `frontend/dist`, then a Python stage serves it alongside the API — so a plain `docker build .` produces a fully working image with nothing to build separately.
 
 1. Push this repo to GitHub (already done if you're reading this from the repo).
-2. Go to [render.com](https://render.com), sign in with GitHub — this step needs your own account.
-3. **New -> Web Service**, pick this repo. Render detects the `Dockerfile` automatically.
-4. Under **Environment**, add your key(s) — `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, ... (or a single `GEMINI_API_KEY`) — the same names used in `.env` locally, since `rootcause/config.py` reads them directly from the process environment either way.
+2. Go to [render.com](https://render.com) (or Fly.io / Railway — all three build directly from a `Dockerfile` on a free tier), sign in with GitHub — this step needs your own account, it can't be done on your behalf.
+3. **New -> Web Service**, pick this repo. The host detects the `Dockerfile` automatically.
+4. Add your key(s) as environment variables — `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, ... (or a single `GEMINI_API_KEY`) — the same names `.env` uses locally, since `rootcause/config.py` reads them directly from the process environment either way.
 5. Deploy. Free-tier services spin down after inactivity and take ~30-60s to wake on the next request — expected on a free host, not a bug.
-
-Fly.io and Railway both also build directly from a `Dockerfile` with a similar free-tier flow, if you'd rather use one of those.
-
-### Option B — Streamlit Community Cloud (simpler, no Docker)
-
-`app/streamlit_app.py` bridges Streamlit Cloud's Secrets into the same environment variables `.env` uses locally.
-
-1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
-2. Click **New app**, pick this repo, branch `main`, main file path `app/streamlit_app.py`.
-3. Before deploying, open **Advanced settings -> Secrets** and paste in the contents of `.streamlit/secrets.toml.example` with your real key(s) filled in.
-4. Deploy. First load will be slower than usual (one-time onnx embedding model download + knowledge index build), then the URL is live and shareable.
 
 ## Current status against the blueprint's evaluation metrics
 
@@ -164,7 +160,7 @@ A real example from Run B, scenario s16 (heat stress on orchard pollinators): RO
 
 The causal map is expert-curated from cited literature, not statistically discovered from raw data. Every peer-reviewed and institutional-report citation has been checked against a live web search and carries a verified DOI, publisher URL, or ISBN — see `data/sources.md` § "Citation verification pass" for exactly which citations are DOI-verified papers, which point to an official assessment-report landing page, and the two that link to a general FAO portal rather than a single precisely-dated document (flagged inline in those citations themselves, not hidden).
 
-Coverage is necessarily incomplete at 32 nodes / 58 edges, and only 6 edges currently carry a *structured*, numerically-checkable condition (rainfall thresholds for cover cropping, agroforestry, and the rainfall-vegetation link, a soil pH threshold for earthworms, and rainfall-as-climate-proxy for irrigation salinization); several other documented conditions (overgrazing severity, fertilizer application rate, drainage quality specifically) exist as citations in the map but aren't yet wired to a numeric check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
+Coverage is necessarily incomplete at 32 nodes / 58 edges, and only 11 edges currently carry a *structured*, checkable condition — rainfall thresholds (cover cropping, agroforestry, the rainfall-vegetation link, irrigation-driven salinity, irrigation-driven yield), a soil pH threshold for earthworms, and categorical grazing severity (three edges). Several other documented conditions (fertilizer application rate/timing, drainage quality specifically, deforestation scale/timescale) exist as citations in the map but aren't yet wired to a check, so claims through those edges are honestly downgraded rather than either falsely accepted or rejected. Extending `condition_check` coverage on those edges is the natural next increment.
 
 ## References
 

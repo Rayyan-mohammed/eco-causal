@@ -15,7 +15,7 @@ from rootcause.agent.pipeline import RootcausePipeline
 from rootcause.agent.state import ConversationState
 from rootcause.config import GEMINI_API_KEY
 
-WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 app = FastAPI(title="ROOTCAUSE API")
 app.add_middleware(
@@ -100,10 +100,11 @@ def chat(req: ChatRequest) -> dict:
     return {"known_variables": state.known_variables, **_serialize_result(result)}
 
 
-# Serve the frontend. Mounted last so it doesn't shadow the /api/* routes above.
-app.mount("/assets", StaticFiles(directory=str(WEB_DIR)), name="assets")
+# Serve the built React app (frontend/dist, produced by `npm run build`).
+# Mounted/declared last so neither shadows the /api/* routes above.
+app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")
 
 
-@app.get("/")
-def index() -> FileResponse:
-    return FileResponse(str(WEB_DIR / "index.html"))
+@app.get("/{full_path:path}")
+def spa(full_path: str) -> FileResponse:
+    return FileResponse(str(FRONTEND_DIST / "index.html"))
