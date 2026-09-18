@@ -23,3 +23,11 @@ Source: FAO, Sustainable rangeland management in Sub-Saharan Africa: Guidelines 
 ## Wetlands
 Wetlands support disproportionately high species richness relative to their land area and also filter nutrients from surrounding runoff before it reaches open water, reducing downstream pollution loads. Loss of wetland extent removes both of these functions simultaneously.
 Source: IPBES (2018), Assessment Report on Land Degradation and Restoration, https://www.ipbes.net/node/28328; FAO (2018), Water Pollution from Agriculture: A Global Review, https://www.fao.org/newsroom/detail/Pollutants-from-agriculture-a-serious-threat-to-world's-water/en.
+
+## Deforestation's direct effects on species richness and land degradation
+Beyond the fragmentation/connectivity pathway, clearing forest directly shrinks the total habitat area available, and area loss alone reduces the number of species a landscape can support — a separate, well-established mechanism from connectivity loss. The same loss of root systems and organic litter inputs that stabilized soil also directly contributes to broader land degradation, not just localized erosion.
+Source: IPBES (2019), Global Assessment Report on Biodiversity and Ecosystem Services, https://www.ipbes.net/global-assessment; IPBES (2018), Assessment Report on Land Degradation and Restoration, https://www.ipbes.net/node/28328.
+
+## Irrigation as a direct yield lever in water-limited systems
+Where rainfall alone is insufficient, supplemental irrigation directly relieves crop water stress. Globally, irrigated cropland produces yields averaging 76 percent higher than rainfed cropland, making it one of the most direct interventions available in a rainfed or water-limited baseline — though it must be weighed against the salinization and drainage risks documented elsewhere in this knowledge base.
+Source: FAO, Land and Water Division, Irrigation overview, https://www.fao.org/land-water/water/agricultural-water-management/irrigation/en.

@@ -31,3 +31,15 @@ Source: FAO Global Soil Partnership, International Network on Salt-Affected Soil
 ## Nitrogen availability and yield
 Nitrogen is typically the most yield-limiting nutrient in cropping systems, and yield increases with nitrogen availability up to a crop-specific optimal rate. Beyond that threshold, additional nitrogen provides little further yield benefit and instead increases the risk of leaching and runoff into nearby water bodies.
 Source: FAO Global Soil Partnership, https://www.fao.org/global-soil-partnership/en (general soil fertility and nutrient management resources; a single dedicated 'soil fertility guidance' document was not independently located in this pass).
+
+## Tillage's direct physical effects on soil structure and earthworms
+Beyond its effect on organic carbon, tillage mechanically disrupts soil in two more immediate ways: it directly breaks up soil aggregates through physical force, independent of any carbon-oxidation pathway, and it directly kills and injures earthworms while destroying their burrows. Both effects show up faster than the slower, carbon-mediated structural decline.
+Source: Six, Bossuyt, Degryze & Denef (2004), Soil & Tillage Research 79:7-31, https://doi.org/10.1016/j.still.2004.03.008; Edwards & Bohlen (1996), Biology and Ecology of Earthworms, 3rd ed., Chapman & Hall, ISBN 978-0-412-56160-3.
+
+## Crop diversity's direct effect on soil carbon and microbial life
+Diversified rotations, particularly those including legumes, add more varied organic inputs and root architectures to soil than a single repeated crop does, building organic carbon directly rather than only through reduced degradation. The same varied root exudates and residue types also feed a more diverse soil microbial community than monoculture supports.
+Source: FAO (2019), The State of the World's Biodiversity for Food and Agriculture, https://openknowledge.fao.org/items/b355c300-72ed-4a63-be07-8295c80ec7f1; Tsiafouli et al. (2015), Global Change Biology 21(2):973-985, https://doi.org/10.1111/gcb.12752.
+
+## Overgrazing's direct effect on soil carbon
+Beyond compacting soil, grazing pressure that exceeds land carrying capacity removes vegetation faster than it regenerates, directly reducing the organic matter returned to soil and increasing the erosion losses that strip away what carbon remains.
+Source: FAO, Sustainable rangeland management in Sub-Saharan Africa: Guidelines to Good Practice, https://www.fao.org/family-farming/detail/en/c/1632938/.

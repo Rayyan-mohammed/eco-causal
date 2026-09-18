@@ -19,3 +19,11 @@ Source: IPBES (2016), Assessment Report on Pollinators, Pollination and Food Pro
 ## Wetlands as biodiversity hotspots
 Wetland ecosystems support species richness disproportionate to their land area, functioning as biodiversity hotspots and critical habitat for migratory species. Nutrient pollution from agricultural runoff is a major driver of wetland biodiversity decline through eutrophication.
 Source: IPBES (2018), Assessment Report on Land Degradation and Restoration, https://www.ipbes.net/node/28328.
+
+## Pesticides and farmland biodiversity broadly
+Beyond pollinators and natural pest predators specifically, insecticide and fungicide use has consistent negative effects on farmland biodiversity as a whole. A meta-analysis across European farmland found insecticide and fungicide use to be among the most consistently negative of thirteen measured components of agricultural intensification.
+Source: Geiger et al. (2010), "Persistent negative effects of pesticides on biodiversity and biological control potential on European farmland", Basic and Applied Ecology 11(2):97-105, https://doi.org/10.1016/j.baae.2009.12.001.
+
+## Habitat connectivity and pollinator movement
+Connectivity's benefit extends specifically to pollinators as well as to general species richness and birds: connected habitat lets pollinators move between forage and nesting resources spread across a landscape, rather than being confined to a single isolated patch that may not supply everything they need across a season.
+Source: Klein et al. (2007), Proceedings of the Royal Society B 274(1608):303-313, https://doi.org/10.1098/rspb.2006.3721.

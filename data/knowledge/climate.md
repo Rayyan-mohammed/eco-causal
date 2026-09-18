@@ -19,3 +19,7 @@ Source: IPCC AR6 Working Group II, Climate Change 2022: Impacts, Adaptation and 
 ## Semi-arid rainfall thresholds and intervention choice
 Climate classification places semi-arid systems roughly in the 300 to 600mm annual rainfall range. Below approximately 400mm, water-competing interventions such as dense cover cropping carry meaningful tradeoff risk against crop water availability, while moisture-conserving interventions such as agroforestry tend to perform more reliably.
 Source: FAO Global Soil Partnership, https://www.fao.org/global-soil-partnership/en (dryland cover cropping guidance); FAO (2017), Agroforestry for Landscape Restoration, https://doi.org/10.4060/i7374e.
+
+## Heat and evapotranspiration
+Higher temperatures increase the rate at which soil moisture is drawn down through evapotranspiration between rainfall or irrigation events, independent of any change in rainfall itself. In turn, soil moisture availability is a direct lever on crop yield: more plant-available water supports growth, particularly through dry spells between water inputs.
+Source: IPCC AR6 Working Group I, Climate Change 2021: The Physical Science Basis, https://www.ipcc.ch/report/ar6/wg1/; IPCC AR6 Working Group II, Climate Change 2022: Impacts, Adaptation and Vulnerability, https://www.ipcc.ch/report/ar6/wg2/.
