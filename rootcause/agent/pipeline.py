@@ -8,7 +8,7 @@ from rootcause.causal.graph import CausalGraph
 from rootcause.config import CAUSAL_MAP_PATH
 from rootcause.output.formatter import format_response
 
-MAX_REGENERATIONS = 1
+MAX_REGENERATIONS = 3
 
 
 class RootcausePipeline:

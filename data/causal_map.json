@@ -665,6 +665,126 @@
       "condition": null,
       "confidence": "medium",
       "citation": "FAO (2019), The State of the World's Biodiversity for Food and Agriculture, https://openknowledge.fao.org/items/b355c300-72ed-4a63-be07-8295c80ec7f1."
+    },
+    {
+      "id": "e46",
+      "source": "tillage_intensity",
+      "target": "soil_structure",
+      "effect": "decreases",
+      "mechanism": "Mechanical disturbance directly breaks up soil aggregates, independent of its separate effect on organic carbon.",
+      "condition": null,
+      "confidence": "high",
+      "citation": "Six, Bossuyt, Degryze & Denef (2004), Soil & Tillage Research 79:7-31, https://doi.org/10.1016/j.still.2004.03.008."
+    },
+    {
+      "id": "e47",
+      "source": "tillage_intensity",
+      "target": "earthworm_abundance",
+      "effect": "decreases",
+      "mechanism": "Tillage directly kills and injures earthworms and destroys their burrows, independent of downstream soil chemistry effects.",
+      "condition": null,
+      "confidence": "high",
+      "citation": "Edwards & Bohlen (1996), Biology and Ecology of Earthworms, 3rd ed., Chapman & Hall, ISBN 978-0-412-56160-3."
+    },
+    {
+      "id": "e48",
+      "source": "crop_diversity",
+      "target": "soil_organic_carbon",
+      "effect": "increases",
+      "mechanism": "Diversified rotations, including legumes and varied root architectures, add more varied organic inputs to soil than monoculture.",
+      "condition": null,
+      "confidence": "medium",
+      "citation": "FAO (2019), The State of the World's Biodiversity for Food and Agriculture, https://openknowledge.fao.org/items/b355c300-72ed-4a63-be07-8295c80ec7f1."
+    },
+    {
+      "id": "e49",
+      "source": "grazing_intensity",
+      "target": "soil_organic_carbon",
+      "effect": "decreases",
+      "mechanism": "Overgrazing removes vegetation faster than it regenerates, reducing organic matter inputs to soil and increasing erosion losses.",
+      "condition": "grazing pressure exceeds land carrying capacity (overgrazing)",
+      "confidence": "medium",
+      "citation": "FAO (2021), Rangeland and Pasture Management guidance, https://www.fao.org/family-farming/detail/en/c/1632938/."
+    },
+    {
+      "id": "e50",
+      "source": "deforestation_rate",
+      "target": "species_richness",
+      "effect": "decreases",
+      "mechanism": "Direct habitat area loss reduces the number of species an area can support, independent of the separate fragmentation/connectivity effect.",
+      "condition": null,
+      "confidence": "high",
+      "citation": "IPBES (2019), Global Assessment Report on Biodiversity and Ecosystem Services, https://www.ipbes.net/global-assessment."
+    },
+    {
+      "id": "e51",
+      "source": "pesticide_use",
+      "target": "species_richness",
+      "effect": "decreases",
+      "mechanism": "Insecticide and fungicide use has consistent negative effects on farmland biodiversity broadly, beyond pollinators and natural predators specifically.",
+      "condition": null,
+      "confidence": "high",
+      "citation": "Geiger et al. (2010), 'Persistent negative effects of pesticides on biodiversity and biological control potential on European farmland', Basic and Applied Ecology 11(2):97-105, https://doi.org/10.1016/j.baae.2009.12.001."
+    },
+    {
+      "id": "e52",
+      "source": "irrigation_water_use",
+      "target": "crop_yield",
+      "effect": "increases",
+      "mechanism": "Supplemental water directly relieves moisture stress on crops in a rainfed or water-limited baseline.",
+      "condition": "site is otherwise rainfed or water-limited; irrigated yields average 76% higher than rainfed yields globally",
+      "confidence": "high",
+      "citation": "FAO, Land and Water Division, Irrigation overview, https://www.fao.org/land-water/water/agricultural-water-management/irrigation/en."
+    },
+    {
+      "id": "e53",
+      "source": "soil_moisture_retention",
+      "target": "crop_yield",
+      "effect": "increases",
+      "mechanism": "Greater plant-available water directly supports crop growth, particularly during dry periods between rainfall or irrigation events.",
+      "condition": null,
+      "confidence": "medium",
+      "citation": "IPCC AR6 Working Group II, Climate Change 2022: Impacts, Adaptation and Vulnerability, https://www.ipcc.ch/report/ar6/wg2/."
+    },
+    {
+      "id": "e54",
+      "source": "habitat_connectivity",
+      "target": "pollinator_abundance",
+      "effect": "increases",
+      "mechanism": "Connected habitat allows pollinators to move between forage and nesting resources across a landscape rather than being confined to isolated patches.",
+      "condition": null,
+      "confidence": "medium",
+      "citation": "Klein et al. (2007), Proceedings of the Royal Society B 274(1608):303-313, https://doi.org/10.1098/rspb.2006.3721."
+    },
+    {
+      "id": "e55",
+      "source": "crop_diversity",
+      "target": "soil_microbial_diversity",
+      "effect": "increases",
+      "mechanism": "Varied root exudates and residue types from diverse crops feed a more diverse soil microbial community than a single crop species does.",
+      "condition": null,
+      "confidence": "medium",
+      "citation": "Tsiafouli et al. (2015), 'Intensive agriculture reduces soil biodiversity across Europe', Global Change Biology 21(2):973-985, https://doi.org/10.1111/gcb.12752."
+    },
+    {
+      "id": "e56",
+      "source": "deforestation_rate",
+      "target": "land_degradation",
+      "effect": "increases",
+      "mechanism": "Loss of forest cover removes the root systems and organic inputs that maintain soil structure and fertility, directly contributing to land degradation.",
+      "condition": null,
+      "confidence": "high",
+      "citation": "IPBES (2018), Assessment Report on Land Degradation and Restoration, https://www.ipbes.net/node/28328."
+    },
+    {
+      "id": "e57",
+      "source": "temperature_extremes",
+      "target": "soil_moisture_retention",
+      "effect": "decreases",
+      "mechanism": "Higher temperatures increase evapotranspiration, drawing down soil moisture faster between rainfall or irrigation events.",
+      "condition": null,
+      "confidence": "medium",
+      "citation": "IPCC AR6 Working Group I, Climate Change 2021: The Physical Science Basis, https://www.ipcc.ch/report/ar6/wg1/."
     }
   ]
 }
