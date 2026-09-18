@@ -18,10 +18,43 @@
   --color-forest-800: #184c30;
   --color-forest-900: #143f29;
   --color-forest-950: #071912;
+
+  --color-amber-50: #fff8ec;
+  --color-amber-100: #ffedc7;
+  --color-amber-400: #f0a93a;
+  --color-amber-500: #e08c1b;
+  --color-amber-600: #c26f0f;
+
+  --color-moss-400: #9ad86a;
+  --color-sky-400: #5cc9e8;
 }
 
 body {
   font-family: var(--font-sans);
+}
+
+/* Layered radial-gradient mesh — the "designed AI product" background,
+   used behind the hero and as a page-wide wash. Pure CSS, no images. */
+.mesh-bg {
+  background-image:
+    radial-gradient(760px circle at 12% -10%, color-mix(in srgb, var(--color-moss-400) 38%, transparent), transparent 60%),
+    radial-gradient(620px circle at 88% 8%, color-mix(in srgb, var(--color-sky-400) 30%, transparent), transparent 60%),
+    radial-gradient(900px circle at 50% 115%, color-mix(in srgb, var(--color-forest-400) 26%, transparent), transparent 65%);
+}
+.dark .mesh-bg {
+  background-image:
+    radial-gradient(760px circle at 12% -10%, color-mix(in srgb, var(--color-moss-400) 16%, transparent), transparent 60%),
+    radial-gradient(620px circle at 88% 8%, color-mix(in srgb, var(--color-sky-400) 14%, transparent), transparent 60%),
+    radial-gradient(900px circle at 50% 115%, color-mix(in srgb, var(--color-forest-500) 20%, transparent), transparent 65%);
+}
+
+.glass {
+  background: color-mix(in srgb, white 68%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.dark .glass {
+  background: color-mix(in srgb, black 45%, transparent);
 }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }

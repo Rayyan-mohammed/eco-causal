@@ -23,10 +23,18 @@ function VariableRow({ label, value }) {
 function Card({ children, className = "" }) {
   return (
     <div
-      className={`rounded-2xl border border-black/5 bg-white/80 p-4 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] ${className}`}
+      className={`rounded-2xl border border-black/5 bg-white/80 p-4 shadow-[0_2px_14px_rgba(20,63,41,0.05)] backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] ${className}`}
     >
       {children}
     </div>
+  );
+}
+
+function IconBadge({ Icon }) {
+  return (
+    <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-forest-500 to-forest-700 text-white shadow-sm shadow-forest-600/20">
+      <Icon size={13} />
+    </span>
   );
 }
 
@@ -49,8 +57,8 @@ export default function Sidebar({ knownVariables, onApplyJson, onReset }) {
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <div className="mb-3 flex items-center gap-2">
-          <ListTree size={15} className="text-forest-600 dark:text-forest-300" />
+        <div className="mb-3 flex items-center gap-2.5">
+          <IconBadge Icon={ListTree} />
           <h3 className="font-display text-[13px] font-bold text-forest-900 dark:text-forest-100">
             Known site variables
           </h3>
@@ -69,8 +77,8 @@ export default function Sidebar({ knownVariables, onApplyJson, onReset }) {
       </Card>
 
       <Card>
-        <div className="mb-2 flex items-center gap-2">
-          <Sparkle size={15} className="text-forest-600 dark:text-forest-300" />
+        <div className="mb-2 flex items-center gap-2.5">
+          <IconBadge Icon={Sparkle} />
           <h3 className="font-display text-[13px] font-bold text-forest-900 dark:text-forest-100">
             Structured JSON input
           </h3>
@@ -88,7 +96,7 @@ export default function Sidebar({ knownVariables, onApplyJson, onReset }) {
         />
         <button
           onClick={applyJson}
-          className="mt-2.5 w-full rounded-lg bg-forest-700 py-2 text-[13px] font-semibold text-white transition hover:bg-forest-800 active:scale-[0.99]"
+          className="mt-2.5 w-full rounded-lg bg-gradient-to-br from-forest-600 to-forest-800 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-[0.99]"
         >
           Apply JSON
         </button>

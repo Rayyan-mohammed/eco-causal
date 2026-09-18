@@ -68,8 +68,8 @@ export default function MessageBubble({ role, text, meta, pending }) {
         <div
           className={
             isUser
-              ? "rounded-2xl rounded-tr-sm bg-forest-700 px-4 py-3 text-[14px] leading-relaxed text-white shadow-sm"
-              : "rounded-2xl rounded-tl-sm bg-forest-50 px-4 py-3.5 text-[14px] leading-relaxed text-forest-950 shadow-sm dark:bg-white/[0.06] dark:text-white/90"
+              ? "rounded-2xl rounded-tr-sm bg-gradient-to-br from-forest-600 to-forest-800 px-4 py-3 text-[14px] leading-relaxed text-white shadow-md shadow-forest-700/15"
+              : "rounded-2xl rounded-tl-sm border border-forest-900/5 bg-gradient-to-br from-forest-50 to-white px-4 py-3.5 text-[14px] leading-relaxed text-forest-950 shadow-[0_2px_14px_rgba(20,63,41,0.06)] dark:border-white/5 dark:from-white/[0.07] dark:to-white/[0.03] dark:text-white/90"
           }
         >
           {pending ? <TypingIndicator /> : <div className="whitespace-pre-wrap">{text}</div>}

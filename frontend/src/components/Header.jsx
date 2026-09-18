@@ -5,7 +5,7 @@ export default function Header({ dark, onToggleDark }) {
     <header className="sticky top-0 z-20 border-b border-black/5 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-forest-950/80">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3.5">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-forest-600 text-white shadow-sm">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-forest-500 to-forest-800 text-white shadow-md shadow-forest-600/25">
             <Sprout size={18} strokeWidth={2.5} />
           </span>
           <div>
