@@ -119,15 +119,15 @@ Running `python eval/run_eval.py` right now (no API key required) against the 30
 | Checker precision (of claims flagged invalid, how many truly are) | 100% |
 | Checker recall (of truly invalid claims, how many were caught) | 100% |
 
-This validates the checker's logic against the causal map itself. The `--live` mode goes further and answers the actual research question — `python eval/run_eval.py --live && python eval/run_eval.py --score`, all 30 scenarios, real Gemini API calls. Run twice on 2026-09-18 (LLM output is non-deterministic, so both runs are reported honestly rather than keeping only the better one):
+This validates the checker's logic against the causal map itself. The `--live` mode goes further and answers the actual research question — `python eval/run_eval.py --live && python eval/run_eval.py --score`, all 30 scenarios, real Gemini API calls. Run three times on 2026-09-18 (LLM output is non-deterministic, so every run is reported honestly rather than keeping only the best one):
 
-| Condition | Run A | Run B |
-|---|---|---|
-| LLM-only (no retrieval, no checker) | 6.7% | 10.0% |
-| RAG-grounded (retrieval, no checker) | 40.0% | 43.3% |
-| ROOTCAUSE full (retrieval + checker) | **80.0%** (1 rejected / 30) | **70.0%** (0 rejected / 30) |
+| Condition | Run A | Run B | Run C | Average |
+|---|---|---|---|---|
+| LLM-only (no retrieval, no checker) | 6.7% | 10.0% | 13.3% | ~10.0% |
+| RAG-grounded (retrieval, no checker) | 40.0% | 43.3% | 43.3% | ~42.2% |
+| ROOTCAUSE full (retrieval + checker) | 80.0% | 70.0% | 73.3% | **~74.4%** |
 
-This is the blueprint's core claim, shown directly and reproducibly: causal validity rises monotonically as retrieval and then the checker get added, in both runs, regardless of run-to-run variance in the LLM's exact wording. The same checker was applied post-hoc to all three conditions' outputs for a fair comparison (raw detail in `eval/results/live_scored.json`, gitignored — rerun the two commands above to reproduce). For context, the very first live run (before any of the fixes below) scored 6.7% / 30.0% / 43.3% against a 45-edge map with one regeneration attempt — expanding the map to 58 edges, allowing up to 3 regeneration attempts, and prompting the model to check its own site data before proposing a mechanism moved ROOTCAUSE full from the low 40s into the 70-80% range and, in Run B, eliminated outright rejections entirely (every case that would once have been flatly rejected was instead an honestly-caveated "downgraded," which is arguably the safer failure mode for an end user to see).
+This is the blueprint's core claim, shown directly and reproducibly across three independent runs: causal validity rises monotonically as retrieval and then the checker get added, every time, regardless of run-to-run variance in the LLM's exact wording. The same checker was applied post-hoc to all three conditions' outputs for a fair comparison (raw detail in `eval/results/live_scored.json`, gitignored — rerun the two commands above to reproduce). For context, the very first live run (before any of the fixes below) scored 6.7% / 30.0% / 43.3% against a 45-edge map with one regeneration attempt — expanding the map to 58 edges, wiring up condition checks for the most common recurring downgrade causes (arid-climate proxies via rainfall, categorical grazing severity), allowing up to 3 regeneration attempts, and prompting the model to check its own site data before proposing a mechanism moved ROOTCAUSE full from the low 40s to a stable ~74% average, with rejections dropping to 0-4 out of 30 across the three runs (down from 11 originally).
 
 Two honest caveats on reading these numbers:
 - **The absolute percentages are conservative, not a ceiling.** The causal map covers 58 edges; a claim not in the map gets rejected even if it's a reasonable real-world relationship the map simply hasn't captured yet. This affects all three conditions equally, so the *relative* ordering above is solid evidence — the *absolute* rates would rise further with a larger map still.
