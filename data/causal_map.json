@@ -503,6 +503,7 @@
       "effect": "decreases",
       "mechanism": "Livestock trampling compacts soil, reducing porosity and aggregate stability.",
       "condition": "grazing pressure exceeds land carrying capacity (overgrazing)",
+      "condition_check": {"variable": "grazing_intensity", "operator": "in", "value": ["high", "overgrazed", "excessive", "heavy", "severe"]},
       "confidence": "high",
       "citation": "FAO, Sustainable rangeland management in Sub-Saharan Africa: Guidelines to Good Practice, https://www.fao.org/family-farming/detail/en/c/1632938/ (exact publication year not independently verified in this pass)."
     },
@@ -523,6 +524,7 @@
       "effect": "decreases",
       "mechanism": "Overgrazing removes vegetation faster than it can regenerate.",
       "condition": "grazing pressure exceeds land carrying capacity (overgrazing)",
+      "condition_check": {"variable": "grazing_intensity", "operator": "in", "value": ["high", "overgrazed", "excessive", "heavy", "severe"]},
       "confidence": "high",
       "citation": "FAO, Sustainable rangeland management in Sub-Saharan Africa: Guidelines to Good Practice, https://www.fao.org/family-farming/detail/en/c/1632938/ (exact publication year not independently verified in this pass)."
     },
@@ -705,6 +707,7 @@
       "effect": "decreases",
       "mechanism": "Overgrazing removes vegetation faster than it regenerates, reducing organic matter inputs to soil and increasing erosion losses.",
       "condition": "grazing pressure exceeds land carrying capacity (overgrazing)",
+      "condition_check": {"variable": "grazing_intensity", "operator": "in", "value": ["high", "overgrazed", "excessive", "heavy", "severe"]},
       "confidence": "medium",
       "citation": "FAO (2021), Rangeland and Pasture Management guidance, https://www.fao.org/family-farming/detail/en/c/1632938/."
     },
@@ -734,7 +737,8 @@
       "target": "crop_yield",
       "effect": "increases",
       "mechanism": "Supplemental water directly relieves moisture stress on crops in a rainfed or water-limited baseline.",
-      "condition": "site is otherwise rainfed or water-limited; irrigated yields average 76% higher than rainfed yields globally",
+      "condition": "site is otherwise rainfed or water-limited (checked here via rainfall below roughly 600mm); irrigated yields average 76% higher than rainfed yields globally",
+      "condition_check": {"variable": "rainfall_level", "operator": "lt", "value": 600},
       "confidence": "high",
       "citation": "FAO, Land and Water Division, Irrigation overview, https://www.fao.org/land-water/water/agricultural-water-management/irrigation/en."
     },
@@ -794,8 +798,8 @@
       "target": "soil_salinity",
       "effect": "decreases",
       "mechanism": "Practices that raise soil moisture retention (e.g. mulching) suppress surface evaporation, which reduces the upward capillary transport that concentrates salts at the soil surface.",
-      "condition": "primarily documented for evaporation-driven surface salt accumulation under irrigation; long-term interactions between mulching, irrigation, and salinity are more complex than this single edge captures",
-      "condition_check": null,
+      "condition": "primarily documented for evaporation-driven surface salt accumulation, which is a live risk mainly under arid/semi-arid conditions (checked here via rainfall below roughly 600mm); long-term interactions between mulching, irrigation, and salinity in wetter climates are more complex than this single edge captures",
+      "condition_check": {"variable": "rainfall_level", "operator": "lt", "value": 600},
       "confidence": "medium",
       "citation": "Hou, Zhu & Jin (2016), 'Surface Drainage and Mulching Drip-Irrigated Tomatoes Reduces Soil Salinity and Improves Fruit Yield', PLOS ONE, https://doi.org/10.1371/journal.pone.0154799."
     }

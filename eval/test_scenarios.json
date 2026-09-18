@@ -331,8 +331,8 @@
             "soil_moisture_retention"
           ]
         ],
-        "expected": "downgraded",
-        "reason": "grazing_intensity -> soil_structure requires overgrazing (pressure exceeding carrying capacity), a condition not yet numerically checkable in the MVP causal map even though 'high' grazing intensity is stated, so it is correctly downgraded rather than accepted outright."
+        "expected": "accepted",
+        "reason": "grazing_intensity='high' now satisfies this edge's categorical condition_check (in: high/overgrazed/excessive/heavy/severe), and soil_structure -> soil_moisture_retention is unconditional."
       },
       {
         "chain": [
