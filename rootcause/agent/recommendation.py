@@ -28,7 +28,12 @@ RECOMMENDATION_SYSTEM = (
     "Ground the mechanism you describe in the retrieved excerpts — do not claim an effect the excerpts "
     "do not support. Name the environmental variables explicitly in the mechanism field (e.g. 'agroforestry "
     "adoption increases soil moisture retention, which supports pollinator abundance') so the causal chain "
-    "can be verified against the sourced map."
+    "can be verified against the sourced map.\n"
+    "Before finalizing, check any numeric threshold or condition mentioned in the retrieved excerpts "
+    "(a rainfall cutoff, a pH threshold, a climate band, etc.) against the 'Known site variables' given "
+    "to you. If the site's actual values fall outside a condition a mechanism depends on, that mechanism "
+    "will fail verification — choose a different intervention that actually fits this site's real numbers "
+    "instead of one that only works in general."
 )
 
 
