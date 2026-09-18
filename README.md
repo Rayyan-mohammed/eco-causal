@@ -52,9 +52,15 @@ rootcause/
   llm.py                    thin Gemini API wrapper (chat + structured parse), free tier by default
   config.py                 paths, model id, required-variable list
 
-app/streamlit_app.py        chat UI: free text or structured JSON input, geo-coordinates inferred into a
-                             climate zone (not just stored), shows the checker's verdict, a color-coded
-                             diagram of the exact reasoning chain it checked, and cited sources per turn
+app/api.py                  FastAPI backend for the custom web app: session-based /api/chat, /api/variables,
+                             /api/reset — a thin HTTP wrapper around the same rootcause pipeline, nothing
+                             duplicated
+web/                         the custom frontend (vanilla HTML/CSS/JS, no build step): branded landing section,
+                             chat UI, and an interactive vis-network diagram of the exact reasoning chain the
+                             checker evaluated, color-coded live — this is the primary, recommended UI
+app/streamlit_app.py        the original Streamlit UI, kept as a working fallback: same features (free text or
+                             structured JSON input, geo-coordinates inferred into a climate zone, checker
+                             verdict, a static reasoning-chain diagram), just a plainer look
 
 eval/
   test_scenarios.json       30 hand-built scenarios across all 5 domains, each with a pre-labeled
@@ -89,7 +95,11 @@ python eval/run_eval.py
 # unit tests
 pytest tests/
 
-# the chat app (needs GEMINI_API_KEY in .env)
+# the custom web app — primary UI, needs GEMINI_API_KEY in .env
+uvicorn app.api:app --reload
+# then open http://127.0.0.1:8000
+
+# the Streamlit app — plainer fallback UI, same backend
 streamlit run app/streamlit_app.py
 
 # the full live 3-condition evaluation (needs GEMINI_API_KEY, free tier)
@@ -99,15 +109,30 @@ python eval/run_eval.py --live
 python eval/run_eval.py --score
 ```
 
-## Deploying a live URL (Streamlit Community Cloud)
+## Deploying a live URL
 
-The app is deploy-ready as-is: the knowledge base auto-builds on first run if missing (`rootcause/agent/tools.py`), and `app/streamlit_app.py` bridges Streamlit Cloud's Secrets into the same environment variables `.env` uses locally, so no code changes are needed between local and hosted.
+Both UIs are deploy-ready as-is: the knowledge base auto-builds on first run if missing (`rootcause/agent/tools.py`), so there's no manual indexing step on a fresh host.
+
+### Option A — the custom web app (recommended; needs a Docker-capable host)
+
+`app/api.py` + `web/` is a plain FastAPI service with a `Dockerfile` already in the repo — it deploys to any container host. **Render** has a genuinely free tier for this:
 
 1. Push this repo to GitHub (already done if you're reading this from the repo).
-2. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub — this step needs your own account, it can't be done on your behalf.
-3. Click **New app**, pick this repo, branch `main`, main file path `app/streamlit_app.py`.
-4. Before deploying, open **Advanced settings -> Secrets** and paste in the contents of `.streamlit/secrets.toml.example` with your real key(s) filled in (one `GEMINI_API_KEY_N` per free-tier account you want rotated, or just a single `GEMINI_API_KEY`).
-5. Deploy. First load will be slower than usual (one-time onnx embedding model download + knowledge index build), then the URL is live and shareable.
+2. Go to [render.com](https://render.com), sign in with GitHub — this step needs your own account.
+3. **New -> Web Service**, pick this repo. Render detects the `Dockerfile` automatically.
+4. Under **Environment**, add your key(s) — `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, ... (or a single `GEMINI_API_KEY`) — the same names used in `.env` locally, since `rootcause/config.py` reads them directly from the process environment either way.
+5. Deploy. Free-tier services spin down after inactivity and take ~30-60s to wake on the next request — expected on a free host, not a bug.
+
+Fly.io and Railway both also build directly from a `Dockerfile` with a similar free-tier flow, if you'd rather use one of those.
+
+### Option B — Streamlit Community Cloud (simpler, no Docker)
+
+`app/streamlit_app.py` bridges Streamlit Cloud's Secrets into the same environment variables `.env` uses locally.
+
+1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+2. Click **New app**, pick this repo, branch `main`, main file path `app/streamlit_app.py`.
+3. Before deploying, open **Advanced settings -> Secrets** and paste in the contents of `.streamlit/secrets.toml.example` with your real key(s) filled in.
+4. Deploy. First load will be slower than usual (one-time onnx embedding model download + knowledge index build), then the URL is live and shareable.
 
 ## Current status against the blueprint's evaluation metrics
 
