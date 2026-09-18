@@ -3,6 +3,7 @@
 *An environmental advisory assistant that verifies each cause-and-effect step of its own recommendation against a citation-backed causal map before showing it to you.*
 
 [![CI](https://github.com/Rayyan-mohammed/eco-causal/actions/workflows/ci.yml/badge.svg)](https://github.com/Rayyan-mohammed/eco-causal/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
@@ -149,7 +150,6 @@ A goal-only query ("biodiversity is declining") returned passages about the prob
 - **Free-tier constraints.** Gemini rate limits and 503s occur; the client rotates across keys, but responses can be slow. Render's free tier sleeps when idle. Sessions are in memory and lost on restart.
 - **No latency benchmark yet:** [TODO: measure median end-to-end seconds per turn on the deployed app].
 - **No screenshot in this README yet:** [TODO: add UI screenshot at `docs/ui.png`].
-- **No LICENSE file yet:** [TODO: choose a license].
 
 ---
 
@@ -175,6 +175,7 @@ eval/
   run_eval.py              offline check, --live 3-condition comparison (checkpointed), --score
 tests/                     55 pytest tests (graph, checker, clarification, tools, retrieval, API, LLM rotation)
 Dockerfile                 multi-stage: Node builds the UI, Python serves API + UI
+LICENSE                    MIT
 ROOTCAUSE_Blueprint.docx   original research write-up this implementation follows
 ```
 
@@ -267,6 +268,7 @@ Built over 2026-09-17 to 2026-09-18.
 - [`.github/workflows/ci.yml`](.github/workflows/ci.yml): the CI pipeline definition
 - [`frontend/README.md`](frontend/README.md): frontend build notes
 - [`Dockerfile`](Dockerfile): multi-stage production build
+- [`LICENSE`](LICENSE): MIT
 
 ---
 
