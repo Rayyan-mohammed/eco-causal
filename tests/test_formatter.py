@@ -19,18 +19,19 @@ def test_accepted_response_has_no_checker_note_appended():
     verdict = CheckerVerdict(status="accepted", confidence="high", explanation="fully supported")
     result = format_response(draft, verdict, retrieved=[])
 
-    assert "Consistency check" not in result["text"]
+    assert "⚠️" not in result["text"] and "❌" not in result["text"]
     assert result["impacted_metrics"] == ["soil moisture retention", "pollinator abundance"]
     assert result["time_horizon"] == "1-2 years"
     assert result["checker_status"] == "accepted"
 
 
-def test_downgraded_response_appends_note_and_keeps_structured_fields():
+def test_downgraded_response_appends_plain_language_note_and_keeps_structured_fields():
     draft = make_draft()
     verdict = CheckerVerdict(status="downgraded", confidence="low", explanation="condition not met")
     result = format_response(draft, verdict, retrieved=[])
 
-    assert "Consistency check: downgraded" in result["text"]
+    assert "checks out against my sourced evidence" in result["text"]
+    assert "condition not met" in result["text"]  # falls back to explanation when no edge_results are set
     assert result["confidence"] == "low"
     assert result["impacted_metrics"] == draft.impacted_metrics
 

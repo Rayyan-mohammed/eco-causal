@@ -71,16 +71,22 @@ class CausalGraph:
         operator_fn = _OPERATORS[condition_check["operator"]]
         return operator_fn(context[variable], condition_check["value"])
 
+    def label(self, node_id: str) -> str:
+        """Human-readable label for a node id, e.g. 'soil_organic_carbon' ->
+        'soil organic carbon', for building explanations a non-engineer can read."""
+        node = self.nodes_by_id.get(node_id)
+        return node["label"].lower() if node else node_id
+
     def check_edge(self, source: str, target: str, context: dict) -> EdgeCheckResult:
         if not self.edge_exists(source, target):
             if self.reverse_edge_exists(source, target):
                 return EdgeCheckResult(
                     source, target, exists=False,
-                    note=f"The causal map documents this relationship in the reverse direction ({target} -> {source}), not as claimed.",
+                    note=f"the evidence I have runs the other way — {self.label(target)} affects {self.label(source)}, not the reverse.",
                 )
             return EdgeCheckResult(
                 source, target, exists=False,
-                note=f"No documented relationship between '{source}' and '{target}' in the causal map.",
+                note=f"I don't have a documented link between {self.label(source)} and {self.label(target)}.",
             )
 
         edges = self.get_edges(source, target)
@@ -95,9 +101,9 @@ class CausalGraph:
 
         note = ""
         if best_satisfied is False:
-            note = f"Condition not met: {best_edge.get('condition') or 'unspecified condition'}."
+            note = f"this only holds under a condition that doesn't apply here: {best_edge.get('condition') or 'unspecified condition'}."
         elif best_satisfied is None and best_edge.get("condition"):
-            note = f"Unverified condition (insufficient input to check): {best_edge['condition']}."
+            note = f"this depends on a condition I couldn't check from what you've told me: {best_edge['condition']}."
 
         return EdgeCheckResult(
             source, target, exists=True, edge=best_edge,
