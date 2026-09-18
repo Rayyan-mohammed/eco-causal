@@ -14,16 +14,6 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white dark:to-[#0b120d]" />
 
       <div className="relative mx-auto max-w-3xl px-5 pb-16 pt-14 text-center sm:pt-20">
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="glass mx-auto mb-5 inline-flex items-center gap-1.5 rounded-full border border-forest-600/15 px-3.5 py-1.5 text-[12px] font-semibold text-forest-700 shadow-sm dark:border-forest-300/20 dark:text-forest-200"
-        >
-          <Sparkles size={13} className="text-amber-500 dark:text-amber-400" />
-          Causal-checked, not just retrieval-grounded
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
