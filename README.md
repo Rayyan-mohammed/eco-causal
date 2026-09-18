@@ -12,9 +12,9 @@
 
 **Live demo: https://eco-causal.onrender.com/** (Render free tier; sleeps when idle, first load can take 30-60 s)
 
-ROOTCAUSE answers questions like *"biodiversity is declining on my wheat farm, soil carbon is 0.3%, rainfall is low"* with a specific recommendation, the mechanism behind it, the metrics it should improve, a time horizon and sources. Standard retrieval-augmented generation checks that individual facts exist in a source; it does not check that the *chain of reasoning* joining those facts is valid. ROOTCAUSE adds a **Causal Consistency Checker** that extracts the drafted cause → effect chain and tests every link against an expert-curated graph (does the edge exist, is the direction right, does the user's own site data satisfy its condition). **On 30 scenarios, causal validity rose from ~10% (LLM only) to ~42% (retrieval) to ~74% (retrieval + checker), averaged over three live runs.**
+ROOTCAUSE answers questions like *"biodiversity is declining on my wheat farm, soil carbon is 0.3%, rainfall is low"* with a specific recommendation, the mechanism behind it, the metrics it should improve, a time horizon and sources. Standard retrieval-augmented generation checks that individual facts exist in a source; it does not check that the *chain of reasoning* joining those facts is valid. ROOTCAUSE adds a **Causal Consistency Checker** that extracts the drafted cause → effect chain and tests every link against an expert-curated graph (does the edge exist, is the direction right, does the user's own site data satisfy its condition). **On 30 scenarios, causal validity rose from ~12% (LLM only) to ~41% (retrieval) to ~75% (retrieval + checker), averaged over four live runs.**
 
-> **Status: working end to end and deployed.** 55 tests pass, the checker agrees with a hand-labelled answer key on 64/64 claims (offline), and the three-condition live comparison has been run three times on 2026-09-18. It is a research-style prototype: the causal map covers 32 variables and 59 relationships, not the whole of ecology. See [Honest limitations](#honest-limitations).
+> **Status: working end to end and deployed.** 55 tests pass, the checker agrees with a hand-labelled answer key on 64/64 claims (offline), and the three-condition live comparison has been run four times on 2026-09-18. It is a research-style prototype: the causal map covers 32 variables and 59 relationships, not the whole of ecology. See [Honest limitations](#honest-limitations).
 
 ---
 
@@ -69,7 +69,7 @@ The generator never sees the causal map: retrieval feeds the model, the map feed
 
 ## The problem
 
-A language model that has retrieved two true statements can still join them into a false recommendation, for example recommending an intervention that only works above a rainfall threshold to a semi-arid farm. In this project's own 30-scenario benchmark, a plain LLM produced a fully valid causal chain in **about 1 scenario in 10** (6.7%, 10.0%, 13.3% across three runs), and adding retrieval alone lifted that to only about 4 in 10. Fact-level retrieval checks do not catch this class of error, because each individual fact is true.
+A language model that has retrieved two true statements can still join them into a false recommendation, for example recommending an intervention that only works above a rainfall threshold to a semi-arid farm. In this project's own 30-scenario benchmark, a plain LLM produced a fully valid causal chain in **about 1 scenario in 10** (6.7%, 10.0%, 13.3%, 16.7% across four runs), and adding retrieval alone lifted that to only about 4 in 10 (36.7-43.3%). Fact-level retrieval checks do not catch this class of error, because each individual fact is true.
 
 ---
 
@@ -107,15 +107,15 @@ All live numbers use `gemini-3.1-flash-lite` on the free tier. LLM output is non
 
 Share of the 30 scenarios whose whole causal chain passed (`eval/run_eval.py --live` then `--score`), 2026-09-18:
 
-| Condition | Run A | Run B | Run C | Average |
-|---|---|---|---|---|
-| LLM only (no retrieval, no checker) | 6.7% | 10.0% | 13.3% | ~10.0% |
-| RAG grounded (retrieval, no checker) | 40.0% | 43.3% | 43.3% | ~42.2% |
-| **ROOTCAUSE (retrieval + checker)** | 80.0% | 70.0% | 73.3% | **~74.4%** |
+| Condition | Run A | Run B | Run C | Run D | Average |
+|---|---|---|---|---|---|
+| LLM only (no retrieval, no checker) | 6.7% | 10.0% | 13.3% | 16.7% | ~11.7% |
+| RAG grounded (retrieval, no checker) | 40.0% | 43.3% | 43.3% | 36.7% | ~40.8% |
+| **ROOTCAUSE (retrieval + checker)** | 80.0% | 70.0% | 73.3% | 76.7% | **~75.0%** |
 
-Run C in full: LLM only 4 accepted / 3 downgraded / 23 rejected; RAG 13 / 3 / 14; ROOTCAUSE 22 / 4 / 4.
+Run D (the current pipeline, with two-stage retrieval) in full: LLM only 5 accepted / 2 downgraded / 23 rejected; RAG 11 / 2 / 17; ROOTCAUSE 23 / 5 / 2. In Run D, 4 of 30 scenarios initially failed with Gemini 504 timeouts and were re-run from the checkpoint.
 
-> **Honest scope:** these runs predate the two-stage retrieval and the numeric-horizon change described below, so they describe the earlier pipeline. A fourth run on the current pipeline is in progress; its numbers will replace this table, whether higher or lower. Longer LLM-only answers also yield longer chains, which mechanically raises their chance of one unsupported step, so part of the LLM-only gap is length, not only hallucination. The map is incomplete, which lowers all three conditions equally.
+> **Honest scope:** Runs A-C predate the two-stage retrieval and numeric-horizon change; Run D is the current pipeline. Run D's RAG-only score (36.7%) is the lowest of the four, so two-stage retrieval did not measurably help the retrieval-only baseline; the full system's 76.7% is within the run-to-run spread of A-C. Longer LLM-only answers also yield longer chains, which mechanically raises their chance of one unsupported step, so part of the LLM-only gap is length, not only hallucination. The map is incomplete, which lowers all three conditions equally.
 
 ### 3. A worked example from the challenge brief
 
@@ -145,7 +145,6 @@ A goal-only query ("biodiversity is declining") returned passages about the prob
 - **The checker inspects the mechanism text, not the whole answer.** Wording in the `action` field is not checked, which is why the prompt confines it to *what* to do.
 - **Quantified effects are sparse.** The knowledge base has 43 passages; only some contain measured figures, so many answers say "Not quantified" instead of giving an estimate.
 - **Evaluation is small and self-scored.** 30 scenarios, one author, one model, the same checker generating and scoring the comparison. Not a substitute for expert review.
-- **Live eval numbers describe an earlier pipeline** until the fourth run lands (see Results 2).
 - **Deployed defaults trade quality for reliability.** The hosted app retries a rejected draft once (evaluation: three) to stay within request timeouts.
 - **Free-tier constraints.** Gemini rate limits and 503s occur; the client rotates across keys, but responses can be slow. Render's free tier sleeps when idle. Sessions are in memory and lost on restart.
 - **No latency benchmark yet:** [TODO: measure median end-to-end seconds per turn on the deployed app].
@@ -248,7 +247,7 @@ Built over 2026-09-17 to 2026-09-18.
 | Workstream | Core pipeline | Evidence and eval | Product | Deployment |
 |---|---|---|---|---|
 | Done | ✅ Extraction, clarification, retrieval, draft, checker, regeneration | ✅ 30 scenarios / 64 claims, offline eval, three live runs, checkpoint and resume | ✅ React UI with reasoning graph, per-step evidence, structured JSON input | ✅ Docker, GitHub Actions CI, Render deployment |
-| Next | Two-stage retrieval tuning | Fourth live run on the current pipeline; more scenarios and a second annotator | Screenshots, latency measurement | Persistent sessions |
+| Next | Two-stage retrieval tuning | More scenarios and a second annotator | Screenshots, latency measurement | Persistent sessions |
 | Later | Wire structured conditions to the remaining edges | Independent expert review of the map | Geo-spatial input from real datasets (SoilGrids, ESA WorldCover) | Automatic index refresh |
 
 ---
