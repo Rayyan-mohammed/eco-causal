@@ -60,3 +60,21 @@ def test_condition_unverified_without_context():
     result = graph.check_edge("cover_crop_adoption", "soil_organic_carbon", context={})
     assert result.exists is True
     assert result.condition_satisfied is None
+
+
+def test_categorical_condition_satisfied_on_overgrazing():
+    graph = load_graph()
+    result = graph.check_edge("grazing_intensity", "soil_structure", context={"grazing_intensity": "high"})
+    assert result.condition_satisfied is True
+
+
+def test_categorical_condition_case_insensitive():
+    graph = load_graph()
+    result = graph.check_edge("grazing_intensity", "soil_structure", context={"grazing_intensity": "HIGH"})
+    assert result.condition_satisfied is True
+
+
+def test_categorical_condition_fails_on_low_grazing():
+    graph = load_graph()
+    result = graph.check_edge("grazing_intensity", "soil_structure", context={"grazing_intensity": "low"})
+    assert result.condition_satisfied is False

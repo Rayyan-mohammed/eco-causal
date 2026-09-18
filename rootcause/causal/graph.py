@@ -12,6 +12,7 @@ _OPERATORS = {
     "lt": op.lt,
     "lte": op.le,
     "eq": op.eq,
+    "in": lambda value, choices: str(value).strip().lower() in [str(c).lower() for c in choices],  # case-insensitive categorical membership
 }
 
 
