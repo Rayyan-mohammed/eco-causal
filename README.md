@@ -52,8 +52,9 @@ rootcause/
   llm.py                    thin Gemini API wrapper (chat + structured parse), free tier by default
   config.py                 paths, model id, required-variable list
 
-app/streamlit_app.py        chat UI: free text or structured JSON input, geo-coordinates supported,
-                             shows the checker's verdict and cited sources per turn
+app/streamlit_app.py        chat UI: free text or structured JSON input, geo-coordinates inferred into a
+                             climate zone (not just stored), shows the checker's verdict, a color-coded
+                             diagram of the exact reasoning chain it checked, and cited sources per turn
 
 eval/
   test_scenarios.json       30 hand-built scenarios across all 5 domains, each with a pre-labeled
