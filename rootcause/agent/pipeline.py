@@ -4,11 +4,20 @@ from rootcause.agent.extraction import extract_causal_chain, extract_input_varia
 from rootcause.agent.recommendation import draft_recommendation
 from rootcause.agent.state import ConversationState
 from rootcause.agent.tools import correlate, retrieve
+import os
+
 from rootcause.causal.graph import CausalGraph
 from rootcause.config import CAUSAL_MAP_PATH
 from rootcause.output.formatter import format_response
 
-MAX_REGENERATIONS = 3
+# Each regeneration attempt costs 2+ sequential Gemini calls (draft + chain
+# extraction). On a resource-constrained host (e.g. Render's free tier),
+# too many attempts risk the platform's own proxy timing out the request
+# (a 502) before the pipeline finishes — worse than a lower-confidence
+# answer. Default is fast/safe for a live deployment; the eval harness
+# raises this via the env var to reproduce the higher-quality numbers
+# reported in the README, where request latency isn't a constraint.
+MAX_REGENERATIONS = int(os.environ.get("ROOTCAUSE_MAX_REGENERATIONS", "1"))
 
 
 class RootcausePipeline:

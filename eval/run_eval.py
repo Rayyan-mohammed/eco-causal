@@ -110,6 +110,15 @@ def _load_checkpoint(path: Path) -> dict[str, dict]:
 
 
 def run_live(scenarios: list[dict], fresh: bool = False) -> None:
+    import os
+
+    # The deployed app defaults to 1 regeneration attempt (safe against the host's
+    # request timeout); the eval harness opts into the higher-quality setting the
+    # README's numbers were measured with, since a local/CI run isn't latency-constrained
+    # the same way a live web request is. Must be set before pipeline.py is first imported,
+    # since it reads this env var into a module-level constant at import time.
+    os.environ.setdefault("ROOTCAUSE_MAX_REGENERATIONS", "3")
+
     from rootcause.agent.pipeline import RootcausePipeline
     from rootcause.agent.recommendation import draft_recommendation
     from rootcause.agent.state import ConversationState
