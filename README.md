@@ -2,6 +2,8 @@
 
 A biodiversity advisory chatbot that checks its own multi-variable reasoning against a small, source-backed causal map before it lets a recommendation reach the user.
 
+Live demo: https://eco-causal.onrender.com/
+
 Built for the Darukaa.Earth AI Biodiversity Intelligence Chatbot Challenge. See `ROOTCAUSE_Blueprint.docx` for the full research writeup this implementation follows.
 
 ## The idea
