@@ -28,6 +28,10 @@ Source: Edwards & Bohlen (1996), Biology and Ecology of Earthworms, 3rd ed., Cha
 Irrigation in poorly drained or arid and semi-arid conditions leaves dissolved salts behind as water evaporates, gradually raising soil salinity. Elevated salinity impairs crop root water uptake through osmotic stress and is also stressful for most soil microorganisms, reducing microbial diversity alongside yield.
 Source: FAO Global Soil Partnership, International Network on Salt-Affected Soils (INSAS), https://www.fao.org/global-soil-partnership/insas/en.
 
+## Moisture retention practices can reduce surface salt accumulation
+Practices that raise soil moisture retention, such as mulching, suppress surface evaporation. Since evaporation is what drives the upward capillary movement that concentrates salts at the soil surface, reducing it also reduces surface salt buildup — an effect documented specifically under irrigated, evaporation-driven salinization. This is a narrower claim than a general "moisture always reduces salinity" rule; the long-term interaction between mulching, irrigation practice, and salinity is more complex than this single mechanism.
+Source: Hou, Zhu & Jin (2016), "Surface Drainage and Mulching Drip-Irrigated Tomatoes Reduces Soil Salinity and Improves Fruit Yield", PLOS ONE, https://doi.org/10.1371/journal.pone.0154799.
+
 ## Nitrogen availability and yield
 Nitrogen is typically the most yield-limiting nutrient in cropping systems, and yield increases with nitrogen availability up to a crop-specific optimal rate. Beyond that threshold, additional nitrogen provides little further yield benefit and instead increases the risk of leaching and runoff into nearby water bodies.
 Source: FAO Global Soil Partnership, https://www.fao.org/global-soil-partnership/en (general soil fertility and nutrient management resources; a single dedicated 'soil fertility guidance' document was not independently located in this pass).
