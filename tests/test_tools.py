@@ -1,4 +1,4 @@
-from rootcause.agent.tools import classify_climate_zone, classify_value, correlate
+from rootcause.agent.tools import build_retrieval_query, classify_climate_zone, classify_value, correlate
 
 
 def test_classify_low_soil_organic_carbon():
@@ -51,3 +51,20 @@ def test_correlate_includes_latitude_as_climate_zone():
     results = correlate({"latitude": 17.4, "longitude": 78.5})
     lat_result = next(r for r in results if r["variable"] == "latitude")
     assert lat_result["label"] == "tropical"
+
+
+def test_retrieval_query_folds_in_goal_and_site_context():
+    query = build_retrieval_query(
+        "biodiversity is declining",
+        {"land_use": "monoculture wheat", "region": "semi-arid", "rainfall_level": 450, "soil_organic_carbon": 0.3},
+        fallback="ignored because a concern exists",
+    )
+    assert query.startswith("biodiversity is declining")
+    assert "monoculture wheat" in query and "semi-arid" in query
+    assert "rainfall level semi arid" in query          # numeric input turned into its qualitative band
+    assert "soil organic carbon critically low" in query
+    assert "ignored" not in query
+
+
+def test_retrieval_query_falls_back_to_the_raw_message_without_a_concern():
+    assert build_retrieval_query(None, {}, fallback="what should I plant?") == "what should I plant?"

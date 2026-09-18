@@ -62,7 +62,7 @@ def test_horizon_must_be_short_medium_or_long():
 
 
 def test_horizon_and_expected_effect_are_passed_through():
-    draft = make_draft(horizon="short", expected_effect="~0.32 Mg C/ha/yr (Poeplau & Don 2015)")
+    draft = make_draft(horizon="long", time_horizon="6-12 months", expected_effect="~0.32 Mg C/ha/yr (Poeplau & Don 2015)")
     verdict = CheckerVerdict(status="accepted", confidence="high", explanation="ok")
     result = format_response(draft, verdict, retrieved=[])
     assert result["horizon"] == "short"
@@ -82,3 +82,12 @@ def test_step_evidence_carries_each_documented_edges_own_citation():
     assert len(evidence) == 1
     assert evidence[0]["cause"] == "agroforestry adoption"
     assert "Shi, Feng, Xu & Kuzyakov" in evidence[0]["citation"]
+
+
+def test_classify_horizon_uses_upper_bound_of_the_numeric_range():
+    from rootcause.agent.recommendation import classify_horizon
+
+    assert classify_horizon("6-12 months") == "short"
+    assert classify_horizon("2-3 years") == "medium"
+    assert classify_horizon("5-10 years") == "long"
+    assert classify_horizon("Multiple seasons") is None

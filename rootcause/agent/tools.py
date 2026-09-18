@@ -23,6 +23,29 @@ def retrieve(query: str, n_results: int = 4, domain: str | None = None) -> list[
     return get_knowledge_store().query(query, n_results=n_results, domain=domain)
 
 
+def site_descriptors(known_variables: dict) -> list[str]:
+    """What we know about the site, as short phrases suitable for a search query:
+    land use, crop and region verbatim, and the qualitative band of each numeric
+    input (so 450mm becomes "semi arid" and 0.3% SOC becomes "critically low")."""
+    parts = []
+    for key in ("land_use", "crop", "region", "grazing_intensity"):
+        value = known_variables.get(key)
+        if value:
+            parts.append(str(value))
+    for key in ("rainfall_level", "soil_organic_carbon", "soil_ph", "soil_salinity"):
+        value = known_variables.get(key)
+        if isinstance(value, (int, float)):
+            band = classify_value(key, value)
+            if band:
+                parts.append(f"{key.replace('_', ' ')} {band['label'].replace('_', ' ')}")
+    return parts
+
+
+def build_retrieval_query(concern: str | None, known_variables: dict, fallback: str) -> str:
+    """Retrieval query from the user's goal plus what we know about the site."""
+    return ". ".join([concern or fallback, *site_descriptors(known_variables)])
+
+
 def _load_reference_ranges() -> dict:
     global _reference_ranges
     if _reference_ranges is None:

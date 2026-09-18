@@ -3,7 +3,8 @@ from rootcause.agent.clarification import build_clarification_question, missing_
 from rootcause.agent.extraction import extract_causal_chain, extract_input_variables
 from rootcause.agent.recommendation import draft_recommendation
 from rootcause.agent.state import ConversationState
-from rootcause.agent.tools import correlate, retrieve
+from rootcause.agent.retrieval import gather_evidence
+from rootcause.agent.tools import correlate
 import os
 
 from rootcause.causal.graph import CausalGraph
@@ -42,7 +43,9 @@ class RootcausePipeline:
             state.add_assistant_message(question)
             return {"type": "clarification", "text": question, "missing": missing}
 
-        retrieved = retrieve(extracted.concern or user_text, n_results=4)
+        if extracted.concern:
+            state.concern = extracted.concern
+        retrieved, retrieval_trace = gather_evidence(state.concern, state.known_variables, fallback=user_text)
         correlations = correlate(state.known_variables)
         history = state.messages[:-1]
 
@@ -50,7 +53,7 @@ class RootcausePipeline:
 
         result = format_response(draft, verdict, retrieved)
         state.add_assistant_message(result["text"])
-        return {"type": "recommendation", **result}
+        return {"type": "recommendation", **result, "retrieval": retrieval_trace}
 
     def _draft_and_check(self, user_text, retrieved, correlations, known_variables, history):
         draft = draft_recommendation(user_text, retrieved, correlations, known_variables, history)

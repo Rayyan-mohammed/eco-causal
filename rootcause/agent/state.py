@@ -9,6 +9,9 @@ class ConversationState:
 
     messages: list[dict] = field(default_factory=list)
     known_variables: dict[str, Any] = field(default_factory=dict)
+    # The user's stated goal (e.g. "biodiversity is declining"). Kept across turns
+    # because a follow-up like "SOC is 0.3%, semi-arid" carries no goal of its own.
+    concern: str | None = None
 
     def add_user_message(self, text: str) -> None:
         self.messages.append({"role": "user", "content": text})

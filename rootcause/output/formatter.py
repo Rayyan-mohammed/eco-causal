@@ -1,5 +1,5 @@
 from rootcause.agent.checker import CheckerVerdict
-from rootcause.agent.recommendation import RecommendationDraft
+from rootcause.agent.recommendation import RecommendationDraft, classify_horizon
 
 
 def _plain_language_note(verdict: CheckerVerdict) -> str:
@@ -51,7 +51,7 @@ def format_response(draft: RecommendationDraft, verdict: CheckerVerdict, retriev
         "mechanism": draft.mechanism,
         "impacted_metrics": draft.impacted_metrics,
         "time_horizon": draft.time_horizon,
-        "horizon": draft.horizon,
+        "horizon": classify_horizon(draft.time_horizon) or draft.horizon,
         "expected_effect": draft.expected_effect,
         "confidence": verdict.confidence,
         "checker_status": verdict.status,

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Clock } from "lucide-react";
+import { ChevronDown, Clock, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import ReasoningGraph from "./ReasoningGraph";
 import StatusBadge from "./StatusBadge";
@@ -19,9 +19,13 @@ function TypingIndicator() {
   );
 }
 
-function SourcesDisclosure({ citations }) {
+const HORIZON_LABEL = { short: "Short-term", medium: "Medium-term", long: "Long-term" };
+
+function SourcesDisclosure({ citations, stepEvidence }) {
   const [open, setOpen] = useState(false);
-  if (!citations?.length) return null;
+  const steps = stepEvidence ?? [];
+  const retrieved = citations ?? [];
+  if (!steps.length && !retrieved.length) return null;
   return (
     <div>
       <button
@@ -29,23 +33,50 @@ function SourcesDisclosure({ citations }) {
         className="flex items-center gap-1 text-[12px] font-semibold text-forest-700 dark:text-forest-300"
       >
         <ChevronDown size={13} className={`transition-transform ${open ? "rotate-180" : ""}`} />
-        Sources ({citations.length})
+        Evidence &amp; sources ({steps.length + retrieved.length})
       </button>
       <AnimatePresence initial={false}>
         {open && (
-          <motion.ul
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mt-2 space-y-1.5 overflow-hidden pl-4 text-[11.5px] leading-relaxed text-black/50 dark:text-white/45"
+            className="mt-2 space-y-3 overflow-hidden text-[11.5px] leading-relaxed text-black/50 dark:text-white/45"
           >
-            {citations.map((c, i) => (
-              <li key={i} className="list-disc">
-                {c}
-              </li>
-            ))}
-          </motion.ul>
+            {steps.length > 0 && (
+              <div>
+                <div className="mb-1 font-semibold text-black/60 dark:text-white/60">
+                  Evidence for each step of the checked chain
+                </div>
+                <ol className="space-y-2 pl-4">
+                  {steps.map((st, i) => (
+                    <li key={i} className="list-decimal">
+                      <span className="font-medium text-black/70 dark:text-white/70">
+                        {st.cause} {st.direction} {st.effect}
+                      </span>
+                      {st.mechanism && <span> — {st.mechanism}</span>}
+                      {st.citation && <div className="mt-0.5 italic">{st.citation}</div>}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+            {retrieved.length > 0 && (
+              <div>
+                <div className="mb-1 font-semibold text-black/60 dark:text-white/60">
+                  Retrieved context used for drafting
+                </div>
+                <ul className="space-y-1.5 pl-4">
+                  {retrieved.map((c, i) => (
+                    <li key={i} className="list-disc">
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
@@ -89,10 +120,22 @@ export default function MessageBubble({ role, text, meta, pending }) {
                 </div>
               )}
 
-              {meta.time_horizon && (
+              {(meta.horizon || meta.time_horizon) && (
                 <div className="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/45">
                   <Clock size={13} />
-                  <span className="font-medium text-black/70 dark:text-white/70">{meta.time_horizon}</span>
+                  <span className="font-medium text-black/70 dark:text-white/70">
+                    {[HORIZON_LABEL[meta.horizon], meta.time_horizon].filter(Boolean).join(" · ")}
+                  </span>
+                </div>
+              )}
+
+              {meta.expected_effect && (
+                <div className="flex items-start gap-1.5 rounded-lg bg-black/[0.03] px-2.5 py-2 text-[12px] leading-relaxed dark:bg-white/[0.05]">
+                  <TrendingUp size={13} className="mt-0.5 shrink-0 text-forest-600 dark:text-forest-300" />
+                  <span className={meta.expected_effect.startsWith("Not quantified") ? "italic text-black/45 dark:text-white/40" : "text-black/70 dark:text-white/70"}>
+                    <span className="font-semibold">Expected effect: </span>
+                    {meta.expected_effect}
+                  </span>
                 </div>
               )}
 
@@ -112,7 +155,7 @@ export default function MessageBubble({ role, text, meta, pending }) {
                 </div>
               )}
 
-              <SourcesDisclosure citations={meta.citations} />
+              <SourcesDisclosure citations={meta.citations} stepEvidence={meta.step_evidence} />
             </div>
           )}
         </div>

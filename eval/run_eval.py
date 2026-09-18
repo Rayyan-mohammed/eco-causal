@@ -122,7 +122,8 @@ def run_live(scenarios: list[dict], fresh: bool = False) -> None:
     from rootcause.agent.pipeline import RootcausePipeline
     from rootcause.agent.recommendation import draft_recommendation
     from rootcause.agent.state import ConversationState
-    from rootcause.agent.tools import retrieve
+    from rootcause.agent.extraction import extract_input_variables
+    from rootcause.agent.retrieval import gather_evidence
     from rootcause.llm import chat
 
     RESULTS_DIR.mkdir(exist_ok=True)
@@ -145,7 +146,10 @@ def run_live(scenarios: list[dict], fresh: bool = False) -> None:
                 system="You are an environmental advisory assistant. Answer from your own knowledge, no retrieval available.",
                 max_tokens=2048,
             )
-            retrieved = retrieve(user_text, n_results=4)
+            # Same retrieval as the full pipeline, so the only difference between the
+            # rag_grounded and rootcause_full conditions is the checker itself.
+            concern = extract_input_variables(user_text).concern
+            retrieved, _trace = gather_evidence(concern, known_variables, fallback=user_text)
             rag_only = draft_recommendation(user_text, retrieved, [], known_variables, []).model_dump()
 
             state = ConversationState()

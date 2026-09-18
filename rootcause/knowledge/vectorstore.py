@@ -68,8 +68,10 @@ class KnowledgeStore:
         docs = results.get("documents", [[]])[0]
         metas = results.get("metadatas", [[]])[0]
         distances = results.get("distances", [[]])[0]
-        for doc, meta, distance in zip(docs, metas, distances):
+        ids = results.get("ids", [[]])[0]
+        for chunk_id, doc, meta, distance in zip(ids, docs, metas, distances):
             hits.append({
+                "id": chunk_id,
                 "text": doc,
                 "domain": meta.get("domain"),
                 "citation": meta.get("citation"),

@@ -1,3 +1,4 @@
+import re
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -6,7 +7,12 @@ from rootcause.llm import parse_structured
 
 
 class RecommendationDraft(BaseModel):
-    action: str = Field(description="The specific action recommended, one or two sentences.")
+    action: str = Field(
+        description=(
+            "The specific action recommended, one or two sentences. State only WHAT to do — "
+            "reasoning, thresholds and caveats belong in the mechanism, not here."
+        )
+    )
     mechanism: str = Field(
         description=(
             "Prose explanation of the causal mechanism connecting at least two environmental "
@@ -18,10 +24,16 @@ class RecommendationDraft(BaseModel):
         description="The environmental metrics/variables expected to improve, in plain language (e.g. 'pollinator abundance', 'soil organic carbon')."
     )
     time_horizon: str = Field(
-        description="Expected time horizon for the improvement to become measurable, e.g. '3-6 months', '1-2 years'."
+        description=(
+            "Expected time for the improvement to become measurable, ALWAYS as a numeric range in months "
+            "or years, e.g. '3-6 months', '2-3 years'. Never a vague phrase like 'multiple seasons'."
+        )
     )
     horizon: Literal["short", "medium", "long"] = Field(
-        description="Classify time_horizon: short = under 1 year, medium = 1 to 5 years, long = over 5 years."
+        description=(
+            "Classify time_horizon: short = up to 1 year, medium = over 1 up to 5 years, long = over 5 "
+            "years. (The system recomputes this from time_horizon; it is only a fallback.)"
+        )
     )
     expected_effect: str = Field(
         description=(
@@ -32,6 +44,26 @@ class RecommendationDraft(BaseModel):
             "'Not quantified in the retrieved evidence.' Never invent, round up, or extrapolate a number."
         )
     )
+
+
+_UNIT_YEARS = {"month": 1 / 12, "year": 1.0}
+_HORIZON_RE = re.compile(r"(\d+(?:\.\d+)?)(?:\s*(?:-|–|to)\s*(\d+(?:\.\d+)?))?\s*(month|year)s?", re.IGNORECASE)
+
+
+def classify_horizon(time_horizon: str) -> str | None:
+    """short / medium / long from the numeric range in the model's own
+    time_horizon text, using its upper bound (the time by which the effect
+    should be measurable). Deterministic on purpose: the model labels
+    'multiple seasons' as 'long', which is not a judgment worth trusting.
+    Returns None if no numeric range is present, so the caller can fall back."""
+    match = _HORIZON_RE.search(time_horizon or "")
+    if not match:
+        return None
+    upper = float(match.group(2) or match.group(1))
+    years = upper * _UNIT_YEARS[match.group(3).lower()]
+    if years <= 1:
+        return "short"
+    return "medium" if years <= 5 else "long"
 
 
 RECOMMENDATION_SYSTEM = (
@@ -48,9 +80,18 @@ RECOMMENDATION_SYSTEM = (
     "to you. If the site's actual values fall outside a condition a mechanism depends on, that mechanism "
     "will fail verification — choose a different intervention that actually fits this site's real numbers "
     "instead of one that only works in general.\n"
-    "For expected_effect, quote a figure only if a retrieved excerpt states it, and say which study it is "
-    "from and what it measures (a rate, a stock difference, a percentage). A missing number is honest; an "
-    "invented one is a failure. Use the site's own numbers to say whether a reported figure plausibly "
+    "When the user's concern is biodiversity, the mechanism must reach at least one biodiversity indicator "
+    "(pollinator abundance, natural pest predator abundance, species richness, habitat connectivity, or bird "
+    "diversity) and, where the excerpts support it, connect at least three variables spanning at least two "
+    "domains (for example land use -> soil health -> biodiversity). Prefer an intervention that acts on "
+    "several of the user's stated conditions at once over single-lever advice.\n"
+    "Never invent a bridging step to reach a target indicator: every arrow in the mechanism must be a "
+    "relationship the retrieved excerpts actually state. A shorter chain of documented steps is better than a "
+    "longer chain that contains a guess.\n"
+    "For expected_effect: if a retrieved excerpt reports a measured figure for the intervention you recommend, "
+    "you MUST report it, naming the study and what it measures (a rate, a stock difference, a percentage). "
+    "Only write 'Not quantified in the retrieved evidence.' when no retrieved excerpt does. Never invent a "
+    "number. Use the site's own numbers to say whether a reported figure plausibly "
     "transfers (for example, a result reported for a different climate or system should be flagged as such)."
 )
 
